@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+
+
+<style>
+    #map {
+  height: 400px;
+  width: 50%;
+}
+</style>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR-API-KEY&callback=initMap" type="text/javascript"></script>
+<body>
+    <div id="map"></div>
+</body>
+
+<script>
+function initMap() {
+  var center = {lat: 45.193821009881, lng: -122.88340534616907};
+  var locations = [
+    ['Washington County',   45.62131774431964, -123.08596332615004],
+    ['Clackamas County', 45.274444654750944, -122.46331999268104],
+    ['Yamhill County', 45.233805263675, -123.24314794964165],
+  ];
+var map = new google.maps.Map(document.getElementById('map'), {
+    zoom: 5,
+    center: center
+  });
+var infowindow =  new google.maps.InfoWindow({});
+var marker, count;
+for (count = 0; count < locations.length; count++) {
+    marker = new google.maps.Marker({
+      position: new google.maps.LatLng(locations[count][1], locations[count][2]),
+      map: map,
+      title: locations[count][0]
+    });
+google.maps.event.addListener(marker, 'click', (function (marker, count) {
+      return function () {
+        infowindow.setContent(locations[count][0]);
+        infowindow.open(map, marker);
+      }
+    })(marker, count));
+  }
+}
+</script>
+</html>
