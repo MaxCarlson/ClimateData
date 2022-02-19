@@ -48,8 +48,6 @@ def plot(ptype, df, plot_vars_map):
     if ptype == 'scatter':
         pass
     elif ptype == 'poly':
-        pass
-    elif ptype == 'poly_deriv':
         plot_poly_deriv(x_data, y_data, plot_vars_map['degree'], plot_vars_map['deriv_degree'])
     elif ptype == 'scatter_poly':
         scatter_poly(x_data, y_data, plot_vars_map['degree'])
@@ -114,8 +112,27 @@ def plot_poly_deriv(x, y, deg, deriv_deg):
     y_fit = fiteq(x_fit)
 
     fig, ax1 = plt.subplots()
-    lines = ax1.plot(x_fit, y_fit, color='r', alpha=0.5, label=f'Polynomial deg={deg}, Derivative d={deriv_deg}')
+
+    # If we're not plotting a deriviative, don't use this labeling
+    label = ''
+    tableLabel = 'Poly Coeffs'
+    polydeg = deg
+    if deriv_deg > 0:
+        deg = deriv_deg
+        coeffs = dcoeffs
+        ddtstr = r'$\frac{{d}}{{dt^{}}}$'.format(deriv_deg)
+        ddtstr1 = r'$\frac{d}{dt}$'
+        tabelLabel = ddtstr if deriv_deg > 1 else ddtstr1
+        tabelLabel += ' Coeffs'
+        label = ddtstr + ' of ' if deriv_deg > 1 else ddtstr1 + ' of '
+    label += f'Polynomial deg={polydeg}'
+    lines = ax1.plot(x_fit, y_fit, color='r', alpha=0.5, label=label)
     ax1.legend()
+    plt.subplots_adjust(right=0.8)
+    a = [ascii_lowercase[x] for x in range(polydeg+1 - deriv_deg)]
+    plt.table([['{:.10f}'.format(coeffs[x])[:9]] for x in range(len(coeffs)-1, -1, -1)], 
+              rowLabels=[ascii_lowercase[x] for x in range(polydeg + 1 - deriv_deg)], 
+              colLabels=[tabelLabel], loc='right', colWidths=[0.2], bbox=[1.022,0.5,0.25,0.35])
     plt.show()
 
 def scatter_plot(x, y):
@@ -136,7 +153,7 @@ if __name__ == '__main__':
 
     # TODO: Add plot color preferences to the input map
     #plot('scatter_poly', get_test_data_raw(), {'process_type': 'months', 'range': range(0,12), 'degree': 3})
-    plot('poly_deriv', get_test_data_raw(), {'process_type': 'months', 'range': range(0,12), 'degree': 5, 'deriv_degree' : 2})
+    plot('poly', get_test_data_raw(), {'process_type': 'months', 'range': range(0,12), 'degree': 5, 'deriv_degree' : 2})
 
 
 '''
