@@ -319,59 +319,30 @@ class graphPage(tk.Frame):
                 self.data_table.insert(parent='', index='end', values=row)
             self.data_table.grid(row=2, column=1, pady=(0,40), padx=(250, 235))
 
-# WIDGETS ----------------------------------------------------------------------------       
-
-        # Frame
-        frame = ttk.Notebook(self)
-        frame.pack(pady=10, expand=True)
-        #container = tk.Frame(self)
-        #tab1 = tk.Frame(frame, width=1920, height=1080)
-        #tab2 = tk.Frame(frame, width=1920, height=1080)
-        #tab1.pack(fill='both', expand=True)
-        #tab2.pack(fill='both', expand=True)
-        #frame.add(tab1, text ='Notebook tab 1')
-        #frame.add(tab2, text ='Notebook tab 2')
-        #frame.pack(expand = 1, fill ="both")
-        """
-        frame = tk.Frame(self)
-        frame.grid(row=0, sticky="nw")
-        frame.grid_rowconfigure(0, weight=1)
-        frame.grid_columnconfigure(1, weight=1)            
-        frame.grid_columnconfigure(2, weight=1)
-        frame.grid_columnconfigure(3, weight=1)
-        """
-        tabs = ["Notebook 1", "Notebook2", "Notebook 3", "Notebook 4"]
-        tab = tk.Frame(frame, width=1920, height=1080)
-        tab2 = tk.Frame(frame, width=1920, height=1080)
-        tab3 = tk.Frame(frame, width=1920, height=1080)
-        tab4 = tk.Frame(frame, width=1920, height=1080)
-        loop = [tab, tab2, tab3, tab4]
-        count = 0 
-        size = len(tabs)
-        for values in range(size):
-            print(loop[count])
-            print(tabs[values])
+        def widgets(frame):
+            tab = tk.Frame(frame, width=1920, height=1080)
+            print(tab, "This is the data <--->")
+            #print(tabs[values])
             #loop[count] = tk.Frame(frame, width=1920, height=1080)
-            frame.add(loop[count], text =tabs[values])
             #Notebook   
-            self.notebook_label = tk.Label(loop[count], font="12", text=tabs[values]+":")
+            self.notebook_label = tk.Label(tab, font="12", text="Notebook:")
             self.notebook_label.grid(row=1, column=0, padx=(10, 710), pady=0)
 
             #Date range widgets
-            self.begin_date_ent = tkboot.Entry(loop[count], textvariable=self.begin_date)
+            self.begin_date_ent = tkboot.Entry(tab, textvariable=self.begin_date)
             self.begin_date_ent.grid(row=4, column=1, padx=(100,0), pady=(0,0))
 
-            self.end_date_ent = tkboot.Entry(loop[count], textvariable=self.end_date)
+            self.end_date_ent = tkboot.Entry(tab, textvariable=self.end_date)
             self.end_date_ent.grid(row=5, column=1, padx=(100, 0), pady=(0,0))
 
-            self.begin_date_label = tk.Label(loop[count], font="10", text="Date range begin: ")
+            self.begin_date_label = tk.Label(tab, font="10", text="Date range begin: ")
             self.begin_date_label.grid(row=4, column=1, padx=(0, 250), pady=(0,0))        
 
-            self.end_date_label = tk.Label(loop[count], font="10", text="Date range end: ")
+            self.end_date_label = tk.Label(tab, font="10", text="Date range end: ")
             self.end_date_label.grid(row=5, column=1, padx=(0, 265), pady=(0,0))
 
             self.sub_btn = tkboot.Button(
-                loop[count],
+                tab,
                 text="Submit dates",
                 command=on_submit,
                 bootstyle="blue",
@@ -382,7 +353,7 @@ class graphPage(tk.Frame):
             
 
             # Initialize Table Widget
-            self.data_table = TTK.Treeview(loop[count])
+            self.data_table = TTK.Treeview(tab)
             self.data_table['columns'] = ('state', 'county_name', 'county_code', 'country')
             self.data_table.column('#0', width=0, stretch=tk.NO)
             self.data_table.column('state', width=110)
@@ -396,7 +367,7 @@ class graphPage(tk.Frame):
             self.data_table.heading('country', text="Country")
 
             # Initialize State Dropdown Widget
-            self.dropdown_state = TTK.Combobox(loop[count], font="Helvetica 12")
+            self.dropdown_state = TTK.Combobox(tab, font="Helvetica 12")
             self.dropdown_state.set('Select state...')
             self.dropdown_state['state'] = 'readonly'
             self.dropdown_state['values'] = (['AK','AL','AR','AZ','CA','CO','CT','DE','FL','GA','IA','ID','IL','IN','KS','KY','LA','MA','MD','ME','MI','MN','MO','MS','MT','NC','ND','NE','NH','NJ','NM','NV','NY','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VA','VT','WA','WI','WV','WY'])
@@ -404,14 +375,14 @@ class graphPage(tk.Frame):
             self.dropdown_state.grid(row=1, column=1, padx=(0, 190), pady=(20, 20))
 
             # Initialize Counties Dropdown Widget
-            self.dropdown_county = TTK.Combobox(loop[count], font="Helvetica 12")
+            self.dropdown_county = TTK.Combobox(tab, font="Helvetica 12")
             self.dropdown_county.set('Select county...')
             self.dropdown_county['state'] = 'readonly'
             self.dropdown_county.bind('<<ComboboxSelected>>', gen_table)
             self.dropdown_county.grid(row=1, column=1, padx=(290, 0), pady=(20, 20))
 
             #Home button
-            self.button_back = TTK.Button(loop[count], width="15", text="Back to home", bootstyle="blue", command=lambda: controller.show_frame("StartPage"))
+            self.button_back = TTK.Button(tab, width="15", text="Back to home", bootstyle="blue", command=lambda: controller.show_frame("StartPage"))
             self.button_back.grid(row=0, column=1, padx=(0,250), pady=(100, 10))
 
             #Add instance to notebook button
@@ -419,7 +390,7 @@ class graphPage(tk.Frame):
             #self.button_notebook_add.grid(row=0, column=0, padx=(10,580), pady=(50, 20))
 
             #Dropdown Widget for equation selection
-            self.dropdown_equations = TTK.Combobox(loop[count], font="Helvetica 12")
+            self.dropdown_equations = TTK.Combobox(tab, font="Helvetica 12")
             self.dropdown_equations.set('Select equation...')
             self.dropdown_equations['state'] = 'readonly'
             self.dropdown_equations['values'] = ['Linear', 'Quadratic', 'Cubic', 'n-degree..']
@@ -428,7 +399,7 @@ class graphPage(tk.Frame):
 
 
             #Dropdown for datatype selection
-            self.dropdown_graphs = TTK.Combobox(loop[count], font="Helvetica 12")
+            self.dropdown_graphs = TTK.Combobox(tab, font="Helvetica 12")
             self.dropdown_graphs.set('Select data type...')
             self.dropdown_graphs['state'] = 'readonly'
             self.dropdown_graphs['values'] = ["Minimum temperature", "Maximum temperature", "Average temperature", "Precipitation"]
@@ -438,7 +409,7 @@ class graphPage(tk.Frame):
 
             #Button for submitting all that the user has entered
             self.data_submit = tkboot.Button(
-                loop[count], 
+                tab, 
                 command=on_enter_data,
                 width="25", 
                 text="Graph it!", 
@@ -449,15 +420,32 @@ class graphPage(tk.Frame):
 
             # Generate Table Rows
             gen_table()
-            count += 1
+            return tab
 
+        
 
+        frame = ttk.Notebook(self)
+        frame.pack(fill='both', pady=10, expand=True)
+        tabs = ["Notebook1", "Notebook2", "Notebook3", "Notebook4"]
+        #tab1 = tk.Frame(frame, width=1920, height=1080)
+        tab1 = widgets(frame)
+        frame.add(tab1, text = "data1")
+        tab2 = widgets(frame)
+        #tab2 = tk.Frame(frame, width=1920, height=1080)
+        frame.add(tab2, text = "data2")
+        
+# WIDGETS ----------------------------------------------------------------------------       
+        
 def start_ui():
     app = App()
     app.mainloop()
 
 if __name__ == "__main__":
     start_ui()
+
+
+
+
 
 
 """
@@ -554,4 +542,139 @@ if __name__ == "__main__":
         )
         self.data_submit.grid(row=8, column=1, padx=(0,173), pady=(150,0))
         self.data_submit.focus_set()
+"""
+
+
+
+
+
+"""
+        # Frame
+        frame = ttk.Notebook(self)
+        frame.pack(pady=10, expand=True)
+        #container = tk.Frame(self)
+        #tab1 = tk.Frame(frame, width=1920, height=1080)
+        #tab2 = tk.Frame(frame, width=1920, height=1080)
+        #tab1.pack(fill='both', expand=True)
+        #tab2.pack(fill='both', expand=True)
+        #frame.add(tab1, text ='Notebook tab 1')
+        #frame.add(tab2, text ='Notebook tab 2')
+        #frame.pack(expand = 1, fill ="both")
+        frame = tk.Frame(self)
+        frame.grid(row=0, sticky="nw")
+        frame.grid_rowconfigure(0, weight=1)
+        frame.grid_columnconfigure(1, weight=1)            
+        frame.grid_columnconfigure(2, weight=1)
+        frame.grid_columnconfigure(3, weight=1)
+        tabs = ["Notebook1", "Notebook2", "Notebook3", "Notebook4"]
+        tab = tk.Frame(frame, width=1920, height=1080)
+        tab2 = tk.Frame(frame, width=1920, height=1080)
+        tab3 = tk.Frame(frame, width=1920, height=1080)
+        tab4 = tk.Frame(frame, width=1920, height=1080)
+        loop = {"Notebook1": tab, "Notebook2":tab2, "Notebook3":tab3, "Notebook4":tab4}
+        count = 0 
+        size = len(tabs)
+        for values in range(size):
+            print(loop[tabs[count]], "This is the data <--->")
+            #print(tabs[values])
+            #loop[count] = tk.Frame(frame, width=1920, height=1080)
+            frame.add(loop[tabs[count]], text =tabs[values])
+            #Notebook   
+            self.notebook_label = tk.Label(loop[tabs[count]], font="12", text=tabs[values]+":")
+            self.notebook_label.grid(row=1, column=0, padx=(10, 710), pady=0)
+
+            #Date range widgets
+            self.begin_date_ent = tkboot.Entry(loop[tabs[count]], textvariable=self.begin_date)
+            self.begin_date_ent.grid(row=4, column=1, padx=(100,0), pady=(0,0))
+
+            self.end_date_ent = tkboot.Entry(loop[tabs[count]], textvariable=self.end_date)
+            self.end_date_ent.grid(row=5, column=1, padx=(100, 0), pady=(0,0))
+
+            self.begin_date_label = tk.Label(loop[tabs[count]], font="10", text="Date range begin: ")
+            self.begin_date_label.grid(row=4, column=1, padx=(0, 250), pady=(0,0))        
+
+            self.end_date_label = tk.Label(loop[tabs[count]], font="10", text="Date range end: ")
+            self.end_date_label.grid(row=5, column=1, padx=(0, 265), pady=(0,0))
+
+            self.sub_btn = tkboot.Button(
+                loop[tabs[count]],
+                text="Submit dates",
+                command=on_submit,
+                bootstyle="blue",
+                width=12,
+            )
+            self.sub_btn.grid(row=5, column=1, padx=(450, 0), pady=(0,0))
+            self.sub_btn.focus_set()
+            
+
+            # Initialize Table Widget
+            self.data_table = TTK.Treeview(loop[tabs[count]])
+            self.data_table['columns'] = ('state', 'county_name', 'county_code', 'country')
+            self.data_table.column('#0', width=0, stretch=tk.NO)
+            self.data_table.column('state', width=110)
+            self.data_table.column('county_name', width=110)
+            self.data_table.column('county_code', width=110)
+            self.data_table.column('country', width=80)
+            self.data_table.heading('#0', text="", anchor=tk.CENTER)
+            self.data_table.heading('state', text="State")
+            self.data_table.heading('county_name', text="County Name")
+            self.data_table.heading('county_code', text="County Code")
+            self.data_table.heading('country', text="Country")
+
+            # Initialize State Dropdown Widget
+            self.dropdown_state = TTK.Combobox(loop[tabs[count]], font="Helvetica 12")
+            self.dropdown_state.set('Select state...')
+            self.dropdown_state['state'] = 'readonly'
+            self.dropdown_state['values'] = (['AK','AL','AR','AZ','CA','CO','CT','DE','FL','GA','IA','ID','IL','IN','KS','KY','LA','MA','MD','ME','MI','MN','MO','MS','MT','NC','ND','NE','NH','NJ','NM','NV','NY','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VA','VT','WA','WI','WV','WY'])
+            self.dropdown_state.bind('<<ComboboxSelected>>', gen_counties)
+            self.dropdown_state.grid(row=1, column=1, padx=(0, 190), pady=(20, 20))
+
+            # Initialize Counties Dropdown Widget
+            self.dropdown_county = TTK.Combobox(loop[tabs[count]], font="Helvetica 12")
+            self.dropdown_county.set('Select county...')
+            self.dropdown_county['state'] = 'readonly'
+            self.dropdown_county.bind('<<ComboboxSelected>>', gen_table)
+            self.dropdown_county.grid(row=1, column=1, padx=(290, 0), pady=(20, 20))
+
+            #Home button
+            self.button_back = TTK.Button(loop[tabs[count]], width="15", text="Back to home", bootstyle="blue", command=lambda: controller.show_frame("StartPage"))
+            self.button_back.grid(row=0, column=1, padx=(0,250), pady=(100, 10))
+
+            #Add instance to notebook button
+            #self.button_notebook_add = TTK.Button(tab1, width="25", text="Add instance to notebook", bootstyle="blue")
+            #self.button_notebook_add.grid(row=0, column=0, padx=(10,580), pady=(50, 20))
+
+            #Dropdown Widget for equation selection
+            self.dropdown_equations = TTK.Combobox(loop[tabs[count]], font="Helvetica 12")
+            self.dropdown_equations.set('Select equation...')
+            self.dropdown_equations['state'] = 'readonly'
+            self.dropdown_equations['values'] = ['Linear', 'Quadratic', 'Cubic', 'n-degree..']
+            self.dropdown_equations.bind('<<ComboboxSelected>>', gen_equation)
+            self.dropdown_equations.grid(row=6, column=1,  padx=(0, 190), pady=(30, 0))
+
+
+            #Dropdown for datatype selection
+            self.dropdown_graphs = TTK.Combobox(loop[tabs[count]], font="Helvetica 12")
+            self.dropdown_graphs.set('Select data type...')
+            self.dropdown_graphs['state'] = 'readonly'
+            self.dropdown_graphs['values'] = ["Minimum temperature", "Maximum temperature", "Average temperature", "Precipitation"]
+            self.dropdown_graphs.bind('<<ComboboxSelected>>', gen_datatype_columns)
+            self.dropdown_graphs.grid(row=7, column=1,  padx=(0, 190), pady=(30, 0))
+
+
+            #Button for submitting all that the user has entered
+            self.data_submit = tkboot.Button(
+                loop[tabs[count]], 
+                command=on_enter_data,
+                width="25", 
+                text="Graph it!", 
+                bootstyle=SUCCESS
+            )
+            self.data_submit.grid(row=8, column=1, padx=(0,173), pady=(150,0))
+            self.data_submit.focus_set()
+
+            # Generate Table Rows
+            gen_table()
+            count += 1
+
 """
