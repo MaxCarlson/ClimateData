@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import tkinter as tk
-from tkinter import ttk
 import ttkbootstrap as tkboot
 from ttkbootstrap import ttk as TTK
 from ttkbootstrap import font as tkfont
@@ -79,38 +78,30 @@ cur = conn.cursor()
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
+        self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
+
+        container = tk.Frame(self)
+        container.grid(row=0, column=0)
+        container.grid_rowconfigure(0, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
         self.title('Climate Data')
         self.geometry('1920x1080')
         tkboot.Style('darkly')
-        self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
-        container = ttk.Notebook(self)
-        container.pack(pady=10, expand=True)
-        #container = tk.Frame(self)
-        tab1 = tk.Frame(container, width=1920, height=1080)
-        tab2 = tk.Frame(container, width=1920, height=1080)
-        tab1.pack(fill='both', expand=True)
-        tab2.pack(fill='both', expand=True)
-        frame = container.add(tab1, text ='Notebook tab 1')
-        frame = container.add(tab2, text ='Notebook tab 2')
-        container.pack(expand = 1, fill ="both")
-        StartPage(container,controller=self, master=self)
-        graphPage(container,controller=self, master=self)
-        """
+    
         self.frames = {}
         for F in (StartPage, graphPage):
             page_name = F.__name__
-            print(page_name)
             frame = F(parent=container, controller=self, master=self)
-            print(frame)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
+            
         self.show_frame("StartPage")
-        """
-        #This code breaks the notebook ^^
+    
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
-    
+
     
 class StartPage(tk.Frame):
     def __init__(self, parent, controller, master):

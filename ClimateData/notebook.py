@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import tkinter as tk
-from tkinter import ttk
+from tkinter import LEFT, ttk
 import ttkbootstrap as tkboot
 from ttkbootstrap import ttk as TTK
 from ttkbootstrap import font as tkfont
@@ -83,7 +83,11 @@ class App(tk.Tk):
         self.geometry('1920x1080')
         tkboot.Style('darkly')
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
-        container = tk.Frame(self)
+        container = ttk.Notebook(self)
+        tab1 = tk.Frame(container, width=1920, height=1080)
+        container.add(tab1, text ='Notebook tab 1')
+        tab2 = tk.Frame(container, width=1920, height=1080)
+        container.add(tab2, text ='Notebook tab 2')
         container.grid(row=0, column=0)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
@@ -103,18 +107,23 @@ class App(tk.Tk):
         #graphPage(container,controller=self, master=self)
         """
         self.frames = {}
+        data = ["StartPage", "graphPage"]
+        loop = 0
         for F in (StartPage, graphPage):
-            page_name = F.__name__
-            print(page_name)
-            frame = F(parent=container, controller=self, master=self)
-            print(frame)
-            self.frames[page_name] = frame
+            frame = F(parent=tab1, controller=self, master=self)
+            self.frames[data[loop]] = frame
             frame.grid(row=0, column=0, sticky="nsew")
+
+            frame = F(parent=tab2, controller=self, master=self)
+            self.frames[data[loop]] = frame
+            frame.grid(row=0, column=0, sticky="nsew")
+            loop += 1
         self.show_frame("StartPage")
         
         #This code breaks the notebook ^^
     def show_frame(self, page_name):
         frame = self.frames[page_name]
+        print(frame,"This is the frame")
         frame.tkraise()
     
     
@@ -321,7 +330,6 @@ class graphPage(tk.Frame):
 
         def widgets(frame):
             tab = tk.Frame(frame, width=1920, height=1080)
-            print(tab, "This is the data <--->")
             #print(tabs[values])
             #loop[count] = tk.Frame(frame, width=1920, height=1080)
             #Notebook   
@@ -429,10 +437,7 @@ class graphPage(tk.Frame):
         tabs = ["Notebook1", "Notebook2", "Notebook3", "Notebook4"]
         #tab1 = tk.Frame(frame, width=1920, height=1080)
         tab1 = widgets(frame)
-        frame.add(tab1, text = "data1")
-        tab2 = widgets(frame)
-        #tab2 = tk.Frame(frame, width=1920, height=1080)
-        frame.add(tab2, text = "data2")
+        frame.add(tab1, text = "Main")
         
 # WIDGETS ----------------------------------------------------------------------------       
         
