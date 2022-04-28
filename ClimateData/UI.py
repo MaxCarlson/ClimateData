@@ -94,6 +94,9 @@ class App(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         self.title('Climate Data')
         self.geometry('1920x1080')
+        tk.Grid.rowconfigure(self,0,weight=1)
+        tk.Grid.columnconfigure(self,0,weight=1)
+        tk.Grid.rowconfigure(self,1,weight=1)
         tkboot.Style('darkly')
 
         self.app = QApplication([])
@@ -112,6 +115,16 @@ class App(tk.Tk):
         container.grid(row=0, column=0)
         container.grid_rowconfigure(0, weight=1)
         container.grid_columnconfigure(0, weight=1)
+        tab1.grid_rowconfigure(0, weight=1)
+        tab1.grid_columnconfigure(0, weight=1)
+        tab2.grid_rowconfigure(0, weight=1)
+        tab2.grid_columnconfigure(0, weight=1)
+        tab3.grid_rowconfigure(0, weight=1)
+        tab3.grid_columnconfigure(0, weight=1)
+        tab4.grid_rowconfigure(0, weight=1)
+        tab4.grid_columnconfigure(0, weight=1)
+        tab5.grid_rowconfigure(0, weight=1)
+        tab5.grid_columnconfigure(0, weight=1)
         tabs = [tab1,tab2,tab3,tab4,tab5]
 
 
@@ -202,6 +215,9 @@ class graphPage(tk.Frame):
         self.begin_date = tkboot.StringVar(value="")
         self.end_date = tkboot.StringVar(value="")
         self.n_degree = tkboot.StringVar(value="")
+        tk.Grid.rowconfigure(self,0,weight=1)
+        tk.Grid.columnconfigure(self,0,weight=1)
+        tk.Grid.rowconfigure(self,1,weight=1)
 
         def on_submit():
             #user input is invalid, call validate_dates function
@@ -443,11 +459,13 @@ class graphPage(tk.Frame):
 
         def widgets(frame):
             self.tab = tk.Frame(frame, width=1920, height=1080)
+            self.tab.grid_rowconfigure(1, weight=1)
+            self.tab.grid_columnconfigure(1, weight=1)
             #print(tabs[values])
             #loop[count] = tk.Frame(frame, width=1920, height=1080)
             #Notebook   
             self.notebook_label = tk.Label(self.tab, font="12", text="Notebook:")
-            self.notebook_label.grid(row=1, column=0, padx=(10, 500), pady=10)
+            self.notebook_label.grid(row=1, column=0, padx=(10, 400), pady=10)
 
             #Date range widgets
             self.begin_date_ent = tkboot.Entry(self.tab, textvariable=self.begin_year, width=10)
@@ -564,11 +582,16 @@ class graphPage(tk.Frame):
             gen_table()
             return self.tab
 
-
+        tk.Grid.rowconfigure(self,0,weight=1)
+        tk.Grid.columnconfigure(self,0,weight=1)
+        tk.Grid.rowconfigure(self,1,weight=1)
         frame = ttk.Notebook(self)
         frame.pack(fill='both', pady=10, expand=True)
         tabs = ["Notebook1", "Notebook2", "Notebook3", "Notebook4"]
         tab1 = widgets(frame)
+        tk.Grid.rowconfigure(tab1,0,weight=1)
+        tk.Grid.columnconfigure(tab1,0,weight=1)
+        tk.Grid.rowconfigure(tab1,1,weight=1)
         frame.add(tab1, text = "Main") 
 
         # Monthly Split checkbox
