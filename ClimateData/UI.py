@@ -17,6 +17,7 @@ from idlelib.tooltip import Hovertip
 from PyQt5.QtWidgets import *                   #pip install PyQt5
 from export_csv import export_csv
 import numpy as np
+from pandastable import Table, config
 
 # Dictionaries
 degree_dict = {
@@ -597,10 +598,6 @@ class graphPage(tk.Frame):
                     df = df.drop('Year', 1)
                     df.replace('', np.nan, inplace=True)
                     df = df.dropna()
-                    # first_year = df['Year'].iloc[0]
-                    # last_year = df['Year'].iloc[-1]
-                    # df['Year'] = f"{first_year} - {last_year}"
-                    # df.drop(df.index[2])
                 self.coeffs_table = TTK.Treeview(self, height=6)
                 self.coeffs_table['columns'] = list(df.columns)
                 self.coeffs_table['show'] = "headings"
@@ -613,6 +610,15 @@ class graphPage(tk.Frame):
                 for row in df_rows:
                     self.coeffs_table.insert("", "end", values=row)
                 self.coeffs_table.pack()
+
+                '''
+                Hi Adriana. This is the pandastable implementation I tried
+                self.coeffs_table = Table(self, dataframe=df, showtoolbar=True, showstatusbar=True)
+                self.coeffs_table.show()
+                config_options = {'colheadercolor': 'green', 'floatprecision': 5}
+                config.apply_options(config_options, self.coeffs_table)
+                self.coeffs_table.show()
+                '''
 
 
             # Initialize Table Widget
