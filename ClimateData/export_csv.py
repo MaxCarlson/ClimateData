@@ -21,23 +21,23 @@ TODO at end make sure to rearrange alphabetically by state
 '''
 
 def get_xy_data_for_year(df):
-    month = 12
     x_dates_format = []
     x_data = []
     start_year = int(str(df['id'].iloc[0])[7:])
     end_year = int(str(df['id'].iloc[-1])[7:])
+    month_cols = [col[-3:] for col in list(df.loc[:, df.columns != 'id'])]
 
     # range(start_year, end_year) == df.shape[0] (num of rows)
     # Append date formatted
     for i in range(start_year, end_year + 1):
-        for j in range(1, month + 1):
-            x_dates_format.append(str(i)[-4:] + '-' + str(j))
-            x_data.append(int(str(i)[-4:]) + (j - 1) / 12)
+        for month in month_cols:
+            x_dates_format.append(str(i)[-4:] + '-' + month)
+            x_data.append(int(str(i)[-4:]) + (months_dict.get(month) - 1) / 12)
 
     # Append temp/precip values
     y_data = []
     for i, row in df.iterrows():
-        for j in row[1:month + 1]:
+        for j in row[1:len(month_cols) + 1]:
             y_data.append(j)
 
     return [x_data, y_data, x_dates_format]
