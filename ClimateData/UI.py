@@ -598,32 +598,20 @@ class graphPage(tk.Frame):
                     df = df.drop('Year', 1)
                     df.replace('', np.nan, inplace=True)
                     df = df.dropna()
-                self.coeffs_table = TTK.Treeview(self, height=6) # TODO change width
+                self.coeffs_table = TTK.Treeview(master=master, height=5) # TODO change width
                 self.coeffs_table['columns'] = list(df.columns)
                 self.coeffs_table['show'] = "headings"
 
                 # Loop through column list for headers
                 for column in self.coeffs_table['columns']:
+                    self.coeffs_table.column(column, width=85, anchor=tk.CENTER)
                     self.coeffs_table.heading(column, text=column)
                 df_rows = df.to_numpy().tolist()
                 # Loop through rows to fill in data
                 for row in df_rows:
                     self.coeffs_table.insert("", "end", values=row)
-                self.coeffs_table.pack()
+                self.coeffs_table.grid(column=0, row=0, pady=(530, 0), padx=(10, 600))
 
-            # Initialize Table Widget
-            # self.data_table = TTK.Treeview(self.tab, height=7)
-            # self.data_table['columns'] = ('state', 'county_name', 'county_code', 'country')
-            # self.data_table.column('#0', width=0, stretch=tk.NO)
-            # self.data_table.column('state', width=110, anchor=CENTER)
-            # self.data_table.column('county_name', width=110, anchor=CENTER)
-            # self.data_table.column('county_code', width=110, anchor=CENTER)
-            # self.data_table.column('country', width=80, anchor=CENTER)
-            # self.data_table.heading('#0', text="", anchor=tk.CENTER)
-            # self.data_table.heading('state', text="State")
-            # self.data_table.heading('county_name', text="County Name")
-            # self.data_table.heading('county_code', text="County Code")
-            # self.data_table.heading('country', text="Country")
 
         frame = ttk.Notebook(self)
         frame.pack(fill='both', pady=10, expand=True)
