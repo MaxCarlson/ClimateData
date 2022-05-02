@@ -13,6 +13,7 @@ from PyQt5.QtWebEngineWidgets import *          #pip install PyQtWebEngine
 import database
 import os
 import re
+import config
 
 datatype_dict = {
     "Maximum Temperature" : "tmp_max",
@@ -51,7 +52,7 @@ state_dict = {
 class MapWindow(QWindow):
 
   def __init__(self, pdDF, *args, **kwargs):
-    self.conn = psycopg2.connect("host=localhost dbname=postgres user=postgres password=PASSWORD")
+    self.conn = psycopg2.connect(config.config_get_db_connection_string())
     self.cur = self.conn.cursor()
     super(MapWindow, self).__init__(*args, **kwargs)
     path = QDir.current().filePath('HTML/map_fig.html')
@@ -151,10 +152,8 @@ class MapWindow(QWindow):
     self.window.show()
 
   def county_list_change(self):
-    self.state_boxes.append(self.state_list.currentText())
-    self.county_boxes.append(self.county_list.currentText())
-    self.state_boxes = list(set(self.state_boxes))
-    self.county_boxes = list(set(self.county_boxes))
+    # self.state_boxes.append(self.state_list.currentText())
+    # self.county_boxes.append(self.county_list.currentText())
     model = self.data_tree.model()
     county = self.county_list.currentText()
     state = self.state_list.currentText()
@@ -171,10 +170,21 @@ class MapWindow(QWindow):
         model.setData(model.index(0, 1), county)
         model.setData(model.index(0, 2), "US")
         state_dict[state].append([county])
-
-
-    print(self.state_boxes)
-    print(self.county_boxes)
+    print(model.data(model.index(0,0)))
+  #Builds State/County lists for genMap
+  def build_lists(self):
+    self.state_boxes = []
+    self.county_boxes = []
+    counties = []
+    for state in state_dict:
+      if state_dict[state]:
+        self.state_boxes.append(state)
+    
+    for state in self.state_boxes:
+      for county in state_dict[state]:
+        counties.append(county[0])
+      self.county_boxes.append(counties)
+      counties = []
 
   #Month List Change
   def month_list_change(self):
@@ -225,6 +235,8 @@ class MapWindow(QWindow):
 
   #Generates the map using pandas dataframe
   def genMap(self):
+    self.build_lists()
+    print(self.state_boxes)
     if self.curr_month == None:
       print("A month must be selected!")
       return

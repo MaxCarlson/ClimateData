@@ -6,7 +6,7 @@ from datetime import datetime, date
 _config_path = 'config.json'
 
 # Config object
-_config = {}
+_config = None
 _config_default = {
   "Database": {
     "Host": "localhost",
@@ -19,15 +19,17 @@ _config_default = {
 
 # loads configuration from the config file
 def config_load():
+  global _config
+  global _config_default
+
   # initialize with defaults
+  _config = {}
   _config.update(_config_default.copy())
 
   # if config file doesn't exist, create new with defaults
   if os.path.exists(_config_path):
     with open(_config_path, 'r') as f:
       _config.update(json.load(f))
-  else:
-    config_save()
 
 # saves configuration to config file
 def config_save():
@@ -38,8 +40,8 @@ def config_save():
 # path is a list of strings
 def _config_has(path):
   if _config is None:
-    return False
-
+    config_load()
+  
   # check each string in path
   item = _config
   for field in path:
@@ -105,3 +107,6 @@ def config_set_db_last_updated(last_updated: datetime):
   _config_set(["Database", "LastUpdated"], last_updated.isoformat())
 def config_set_db_last_updated_utc_now():
   config_set_db_last_updated(datetime.utcnow())
+
+def config_get_db_connection_string() -> str:
+  return f'host={config_get_db_host()} dbname={config_get_db_name()} user={config_get_db_user()} password={config_get_db_password()}'
