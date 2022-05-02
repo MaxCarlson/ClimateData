@@ -79,11 +79,33 @@ def export_csv_split_months(df_list, state_dict, date_range, data_type, deg, der
 
     # Concatenate all column names
     cols = []
+
+    # Format coeff col names with respective x exponential values
+    coeff_cols_formatted = []
+    coeff_cols_size = len(coeff_cols[:deg + 1])
+    for letter in coeff_cols[:deg + 1]:
+        coeff_cols_size -= 1
+        if coeff_cols_size == 0:
+            coeff_cols_formatted.append(f"{letter}")
+        else:
+            coeff_cols_formatted.append(f"{letter}x^{coeff_cols_size}")
+
     if deriv > 0:
-        cols = np.hstack(['State', 'County', 'Month', data_cols_names, coeff_cols[:deg+1],
-                          [letter + "'" for letter in coeff_cols[:deg]]])
+        # Format deriv coeff col names with respective x exponential values
+        deriv_coeff_cols_formatted = []
+        deriv_coeff_cols_size = len(coeff_cols[:(deg + 1 - deriv)])
+        for letter in coeff_cols[:(deg + 1 - deriv)]:
+            deriv_coeff_cols_size -= 1
+            if deriv_coeff_cols_size == 0:
+                deriv_coeff_cols_formatted.append(f"{letter}'")
+            else:
+                deriv_coeff_cols_formatted.append(f"{letter}x^{deriv_coeff_cols_size}'")
+
+        cols = np.hstack(['State', 'County', 'Month', data_cols_names, coeff_cols_formatted,
+                          deriv_coeff_cols_formatted])
     else:
-        cols = np.hstack(['State', 'County', 'Month', data_cols_names, coeff_cols[:deg+1]])
+        # cols = np.hstack(['State', 'County', 'Month', data_cols_names, coeff_cols[:deg+1]])
+        cols = np.hstack(['State', 'County', 'Month', data_cols_names, coeff_cols_formatted])
 
     # Append line by line to transpose data
     data_rows = []
@@ -91,6 +113,9 @@ def export_csv_split_months(df_list, state_dict, date_range, data_type, deg, der
     for state, counties in state_dict.items():
         for county in counties:
             county_df = df_list[county_index]
+
+            # No matter what month, always starts in 2nd column for temp data values
+            month_cell_index = 1
             for month_index in range(begin_month_index, end_month_index+1):
                 temperature_data_values = []
                 month = months[month_index]
@@ -101,13 +126,13 @@ def export_csv_split_months(df_list, state_dict, date_range, data_type, deg, der
                     year = yearStr[len(yearStr) - 4:]
                     id_year = county_df.at[index, 'id']
                     if year in id_year:
-                        temperature_data_values.append(county_df.iat[index, months_dict[month]])
+                        temperature_data_values.append(county_df.iat[index, month_cell_index])
                         index += 1
                     else:
                         temperature_data_values.append(np.nan)
 
                 # Process data
-                [x, y, x_dates] = get_xy_data_for_months(county_df, begin_year, end_year, month_index + 1)
+                [x, y, x_dates] = get_xy_data_for_months(county_df, begin_year, end_year, month_cell_index)
 
                 # Get polynomial coefficients
                 # Format ax^deg + bx^deg-1 + cx^deg-2 + ... + z
@@ -120,8 +145,12 @@ def export_csv_split_months(df_list, state_dict, date_range, data_type, deg, der
                 else:
                     data_rows.append(np.hstack([state, county, month, temperature_data_values, coeffs[::-1]]))
 
+                # Iterate next month between year range
+                month_cell_index += 1
+
             # Iterate each county df from df_list
             county_index += 1
+
 
     # Create df
     df = pd.DataFrame(data_rows, columns=cols)
@@ -136,10 +165,31 @@ def export_csv_year(df_list, state_dict, deg, deriv):
 
     # Concatenate all column names
     cols = []
+
+    # Format coeff col names with respective x exponential values
+    coeff_cols_formatted = []
+    coeff_cols_size = len(coeff_cols[:deg + 1])
+    for letter in coeff_cols[:deg + 1]:
+        coeff_cols_size -= 1
+        if coeff_cols_size == 0:
+            coeff_cols_formatted.append(f"{letter}")
+        else:
+            coeff_cols_formatted.append(f"{letter}x^{coeff_cols_size}")
+
     if deriv > 0:
-        cols = np.hstack(['State', 'County', coeff_cols[:deg+1], [letter + "'" for letter in coeff_cols[:deg]]])
+        # Format deriv coeff col names with respective x exponential values
+        deriv_coeff_cols_formatted = []
+        deriv_coeff_cols_size = len(coeff_cols[:(deg + 1 - deriv)])
+        for letter in coeff_cols[:(deg + 1 - deriv)]:
+            deriv_coeff_cols_size -= 1
+            if deriv_coeff_cols_size == 0:
+                deriv_coeff_cols_formatted.append(f"{letter}'")
+            else:
+                deriv_coeff_cols_formatted.append(f"{letter}x^{deriv_coeff_cols_size}'")
+
+        cols = np.hstack(['State', 'County', coeff_cols_formatted, deriv_coeff_cols_formatted])
     else:
-        cols = np.hstack(['State', 'County', coeff_cols[:deg+1]])
+        cols = np.hstack(['State', 'County', coeff_cols_formatted])
 
     # cols = np.hstack(['State', 'County', coeff_cols[:deg + 1]])
 
