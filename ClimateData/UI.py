@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import tkinter as tk
 from tkinter import LEFT, ttk
+
+import pandas as pd
 import ttkbootstrap as tkboot
 from ttkbootstrap import ttk as TTK
 from ttkbootstrap import font as tkfont
@@ -592,12 +594,26 @@ class graphPage(tk.Frame):
 
         def gen_coeffs_table():
             if self.export_csv_df is not None and self.data_type is not None and self.coeffs_table is None:
+                # Drop all columns with temp/precip/drought data
                 df = self.export_csv_df[self.export_csv_df.columns.drop(list(self.export_csv_df.filter(regex=self.data_type)))]
+
+                # Check if monthly split is checked
                 monthly_split = self.monthly_check_var.get()
                 if not monthly_split:
                     df = df.drop('Year', 1)
                     df.replace('', np.nan, inplace=True)
                     df = df.dropna()
+
+                # Helper function along the column axis
+                def scientific_notation(col):
+                    if col.name != 'Year' and col.name != 'State' and col.name != 'County':
+                        # Apply scientific notation along the whole column
+                        return col.apply(lambda x: "{:.2e}".format(float(x)))
+                    return col
+                # Call the function to apply scientific notation
+                df = df.apply(scientific_notation, axis=0)
+
+                # Initialize table
                 self.coeffs_table = TTK.Treeview(master=master, height=5) # TODO change width
                 self.coeffs_table['columns'] = list(df.columns)
                 self.coeffs_table['show'] = "headings"
@@ -607,6 +623,7 @@ class graphPage(tk.Frame):
                     self.coeffs_table.column(column, width=85, anchor=tk.CENTER)
                     self.coeffs_table.heading(column, text=column)
                 df_rows = df.to_numpy().tolist()
+
                 # Loop through rows to fill in data
                 for row in df_rows:
                     self.coeffs_table.insert("", "end", values=row)
