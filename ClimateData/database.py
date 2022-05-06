@@ -374,6 +374,7 @@ def get_weather_data(columnList, idList, startYear, endYear):
         conn.close()
 
     df = pd.DataFrame(data=results, columns=cols)
+    df = df.loc[:, ~df.columns.duplicated()]
     df.id = df.id.apply('{:0>11}'.format).astype(str)
     return df
 

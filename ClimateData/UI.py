@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 import tkinter as tk
 from tkinter import LEFT, ttk
+
+import pandas as pd
 import ttkbootstrap as tkboot
 from ttkbootstrap import ttk as TTK
 from ttkbootstrap import font as tkfont
 from ttkbootstrap.constants import *
+from tkinter.filedialog import asksaveasfilename
 import psycopg2
 from database import *
 import plotting
@@ -14,6 +17,9 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 import MapUI
 from idlelib.tooltip import Hovertip
 from PyQt5.QtWidgets import *                   #pip install PyQt5
+from export_csv import export_csv
+import numpy as np
+from pandastable import Table, config
 
 # Dictionaries
 degree_dict = {
@@ -213,6 +219,10 @@ class graphPage(tk.Frame):
         self.end_date = tkboot.StringVar(value="")
         self.n_degree = tkboot.StringVar(value="")
 
+        self.export_csv_df = None
+        self.data_type = None
+        self.coeffs_table = None
+
         def on_submit():
             #user input is invalid, call validate_dates function
             if validate_dates(self.begin_year.get(), self.end_year.get()) == False:    
@@ -242,6 +252,12 @@ class graphPage(tk.Frame):
 
         #The data has been entered/ selected by the user. Here is it:
         def on_enter_data():
+
+            # Remove coeffs table
+            if self.coeffs_table is not None:
+                self.coeffs_table.destroy()
+                self.coeffs_table = None
+
 
             [begin_month_num, begin_year] = self.begin_year.get().split('/')
             [end_month_num, end_year] = self.end_year.get().split('/')
@@ -284,7 +300,7 @@ class graphPage(tk.Frame):
                 process_type = 'monthly'
 
 
-            data_type =  datatype_dict[self.dropdown_graphs.get()]
+            self.data_type =  datatype_dict[self.dropdown_graphs.get()]
             # Intermediate Steps
             rows = self.data_table.get_children()
             states = []
@@ -316,7 +332,7 @@ class graphPage(tk.Frame):
             monthsIdx = {'jan' : 0, 'feb' : 1, 'mar' : 2, 'apr': 3, 'may': 4, 'jun': 5, 
                          'jul': 6, 'aug': 7, 'sep': 8, 'oct': 9, 'nov': 10, 'dec': 11}
 
-            df_list = get_data_for_counties_dataset(states, counties, 'US', [data_type], months, int(begin_year), int(end_year))
+            df_list = get_data_for_counties_dataset(states, counties, 'US', [self.data_type], months, int(begin_year), int(end_year))
 
             counties = list(chain(*counties))
             fig, x_data, y_data = plotting.plot(plot_type, df_list, {'process_type': process_type, 'double_plot_diff': double_plot_diff,
@@ -326,8 +342,21 @@ class graphPage(tk.Frame):
                                                      'plots_per_graph' : len(df_list), 'names' : counties})
             canvas = FigureCanvasTkAgg(fig, master = master)  
             canvas.draw()
-            canvas.get_tk_widget().grid(row=0, column=0, pady=(50, 0), padx=(10, 600))
+            canvas.get_tk_widget().grid(row=0, column=0, pady=(10, 0), padx=(10, 600))
 
+            # Coefficient Button
+            self.button_coeff = TTK.Button(self.tab, command=gen_coeffs_table,width="15", text="View Coefficients", bootstyle="blue")
+            self.button_coeff.grid(row=9, column=1, padx=(220,0), pady=(50, 0))
+
+            self.export_csv_df = export_csv(process_type=process_type, df_list=df_list, state_dict=temp_dict,
+                                                         date_range={'begin_month': begin_month, 'begin_year': begin_year,
+                                                        'end_month': end_month, 'end_year': end_year},
+                                                         data_type=self.data_type, deg=polynomial_degree,
+                                                         deriv=(0 if derivitive_degree is None else derivitive_degree))
+
+            # Export CSV Button
+            self.export_csv_button = TTK.Button(self.tab, command=save_csv_file ,width="16", text="Export data to CSV", bootstyle="blue")
+            self.export_csv_button.grid(row=9, column=1, padx=(537,0), pady=(50, 0))
             #print("\nHere is the data that the user entered: ")
             #print("Begin date month: ")
             #print(begin_month)
@@ -400,7 +429,7 @@ class graphPage(tk.Frame):
         def delete_from_table():
             selected_item = self.data_table.selection()[0]
             self.data_table.delete(selected_item)
-            
+
 
         def gen_counties(event=None):
             if event == None:
@@ -543,7 +572,7 @@ class graphPage(tk.Frame):
             self.dropdown_equations = TTK.Combobox(self.tab, font="Helvetica 12")
             self.dropdown_equations.set('Select equation...')
             self.dropdown_equations['state'] = 'readonly'
-            self.dropdown_equations['values'] = ['Connected', 'Connected-Curve', 'Linear', 
+            self.dropdown_equations['values'] = ['Connected', 'Connected-Curve', 'Linear',
                                                  'Quadratic', 'Cubic', 'n-degree..', 'n-degree derivative']
             self.dropdown_equations.bind('<<ComboboxSelected>>', gen_equation)
             self.dropdown_equations.grid(row=7, column=1,  padx=(0, 190), pady=(30, 0))
@@ -573,6 +602,50 @@ class graphPage(tk.Frame):
             # Generate Table Rows
             gen_table()
             return self.tab
+
+        # Exporting data to csv
+        def save_csv_file():
+            if self.export_csv_df is not None:
+                file_name = asksaveasfilename(filetypes=[("CSV files", "*.csv")],
+                                              defaultextension='.csv')
+                self.export_csv_df.to_csv(file_name, sep=',', encoding='utf-8', index=False)
+
+        def gen_coeffs_table():
+            if self.export_csv_df is not None and self.data_type is not None and self.coeffs_table is None:
+                # Drop all columns with temp/precip/drought data
+                df = self.export_csv_df[self.export_csv_df.columns.drop(list(self.export_csv_df.filter(regex=self.data_type)))]
+
+                # Check if monthly split is checked
+                monthly_split = self.monthly_check_var.get()
+                if not monthly_split:
+                    df = df.drop('Year', 1)
+                    df.replace('', np.nan, inplace=True)
+                    df = df.dropna()
+
+                # Helper function along the column axis
+                def scientific_notation(col):
+                    if col.name != 'Year' and col.name != 'State' and col.name != 'County':
+                        # Apply scientific notation along the whole column
+                        return col.apply(lambda x: "{:.2e}".format(float(x)))
+                    return col
+                # Call the function to apply scientific notation
+                df = df.apply(scientific_notation, axis=0)
+
+                # Initialize table
+                self.coeffs_table = TTK.Treeview(master=master, height=5) # TODO change width
+                self.coeffs_table['columns'] = list(df.columns)
+                self.coeffs_table['show'] = "headings"
+
+                # Loop through column list for headers
+                for column in self.coeffs_table['columns']:
+                    self.coeffs_table.column(column, width=85, anchor=tk.CENTER)
+                    self.coeffs_table.heading(column, text=column)
+                df_rows = df.to_numpy().tolist()
+
+                # Loop through rows to fill in data
+                for row in df_rows:
+                    self.coeffs_table.insert("", "end", values=row)
+                self.coeffs_table.grid(column=0, row=0, pady=(530, 0), padx=(10, 600))
 
 
         frame = ttk.Notebook(self)

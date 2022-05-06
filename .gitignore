@@ -371,3 +371,6 @@ FodyWeavers.xsd
 /ClimateData/map_fig.html
 /ClimateData/build/
 /ClimateData/dist/
+
+# Attributes file for MacOS users
+.DS_Store
