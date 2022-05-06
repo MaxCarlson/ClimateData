@@ -9,6 +9,7 @@ import urllib.request
 import json
 import datetime
 import re
+from preprocess_data import *
 
 datadir = './data/raw/'
 droughtDir = f'{datadir}drought/'
@@ -60,82 +61,33 @@ def download(url, save_path, skip_download_if_save_file_exists = False):
   return download_contents
 
 def convert_countycodes(skip_download_if_save_file_exists):
-  state_map = {}
-  with open(f'{datadir}county-state-codes.txt', 'r') as f:
-    lines = f.readlines()
-    for line in lines:
-      line = line.strip()
-      values = line.split(' ')
-      state_map[values[1]] = values[0]
+  global allStatesCounties
+  id = 1
+  
+  with open(f'{outputDir}{countyCodesName}', 'w') as w:
+    # header
+    w.write('id INTEGER PRIMARY KEY,county_code INTEGER,fips_code INTEGER,county_name VARCHAR(50),state VARCHAR(2),country VARCHAR(3)\n')
 
+    for state_abbr in allStatesCounties:
+      state = allStatesCounties[state_abbr]
+      counties = state['Counties']
+      for county in counties:
 
-  # read in postal fips to ncdc fips from county-to-climdivs.txt
-  county_map = {}
-  with open(f'{datadir}county-to-climdivs.txt', 'r') as f:
-    lines = f.readlines()
-    for line in lines:
-      line = line.strip()
-      if len(line) == 16:
-        values = line.split(' ')
-        county_map[values[0]] = values[1]
-
-  # converts tab-delimited county codes to comma delimited csv
-  with open(f'{datadir}us-county-codes.txt', 'r') as f:
-    with open(f'{outputDir}{countyCodesName}', 'w') as w:
-
-      # header
-      w.write('id INTEGER PRIMARY KEY,county_code INTEGER,fips_code INTEGER,county_name VARCHAR(50),state VARCHAR(2),country VARCHAR(3)\n')
-
-      # eat header
-      f.readline()
-
-      # iterate lines
-      lines = f.readlines()
-      id = 1
-      for line in lines:
-        parts = line.split('\t')
-
-        fips_code = parts[0]
-        fips_state_code = int(fips_code[:2])
-        state = parts[2].strip()
-        name = parts[1]
-        skip = False
-        #if county_code in county_map:
-        #  county_code = county_map[county_code]
-        if state in state_map:
-          county_code = f'{state_map[state]}{fips_code[2:]}'
-        else:
-          skip = True
-          print(f'skipping {line.strip()}')
-
-        if not skip:
-          # prepend '01' to code, indicating county is from united states
-          # add 'US' value for country column
-          w.write(f'{id},01{county_code},{fips_code},{name},{state},US\n')
-          id += 1
+        fips_code = county['Fips']
+        ncdc_code = county['Ncdc']
+        state_name = state['FullName']
+        county_name = county['Name']
+        
+        # prepend '01' to code, indicating county is from united states
+        # add 'US' value for country column
+        w.write(f'{id},01{ncdc_code},{fips_code},{county_name},{state_abbr},US\n')
+        id += 1
 
 def convert_county_coords(skip_download_if_save_file_exists):
+  global allStatesCounties
+  
   # download coordinate data
   county_boundaries = download('https://public.opendatasoft.com/explore/dataset/us-county-boundaries/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B', f'{weatherDir}us-county-boundaries.csv', skip_download_if_save_file_exists)
-
-  state_map = {}
-  with open(f'{datadir}county-state-codes.txt', 'r') as f:
-    lines = f.readlines()
-    for line in lines:
-      line = line.strip()
-      values = line.split(' ')
-      state_map[values[1]] = values[0]
-
-
-  # read in postal fips to ncdc fips from county-to-climdivs.txt
-  county_map = {}
-  with open(f'{datadir}county-to-climdivs.txt', 'r') as f:
-    lines = f.readlines()
-    for line in lines:
-      line = line.strip()
-      if len(line) == 16:
-        values = line.split(' ')
-        county_map[values[0]] = values[1]
 
   # converts county coords csv
   with open(f'{outputDir}{countyCoordsName}', 'w') as w:
@@ -158,8 +110,8 @@ def convert_county_coords(skip_download_if_save_file_exists):
         county_code = row[3]
         skip = False
 
-        if state in state_map:
-          county_code = f'{state_map[state]}{county_code}'
+        if state in allStatesCounties:
+          county_code = f'{allStatesCounties[state]["StateCode"]}{county_code}'
         else:
           skip = True
           print(f'skipping county coord {row[2:]}')
@@ -328,3 +280,4 @@ def create_working_directory():
 if __name__ == '__main__':
     create_working_directory()
     process_files()
+
