@@ -76,6 +76,9 @@ month_abbrev_to_whole = {
     "12" : "December"
 }
 
+# State only plotting process types
+state_process_types = np.array(["pdsist", "phdist", "pmdist", "sp01st", "sp02st", "sp03st", "sp06st", "sp09st", "sp12st", "sp24st"])
+
 
 # Helper Functions --------------------------------------------------
 
@@ -339,10 +342,17 @@ class graphPage(tk.Frame):
                                                      'plot_points': plot_points, 'connected_curve': connected_curve,
                                                      'begin_month': monthsIdx[begin_month], 'end_month': monthsIdx[end_month],
                                                      'degree': polynomial_degree, 'deriv_degree': derivitive_degree,
-                                                     'plots_per_graph' : len(df_list), 'names' : counties})
+                                                     'plots_per_graph' : len(df_list), 'names' : counties,
+                                                     'process_level': "state" if self.data_type in state_process_types else "county"})
+
+            # Write out figure to tkinter
             canvas = FigureCanvasTkAgg(fig, master = master)  
             canvas.draw()
             canvas.get_tk_widget().grid(row=0, column=0, pady=(10, 0), padx=(10, 600))
+
+            # Toolbar for figure/graph
+            toolbar = NavigationToolbar2Tk(canvas=canvas, window=master, pack_toolbar=False)
+            toolbar.grid(row=0, column=0, pady=(415, 0), padx=(0, 880))
 
             # Coefficient Button
             self.button_coeff = TTK.Button(self.tab, command=gen_coeffs_table,width="15", text="View Coefficients", bootstyle="blue")

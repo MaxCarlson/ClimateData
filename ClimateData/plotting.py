@@ -42,7 +42,7 @@ def to_date(x_data):
 
 def plot(ptype, df_list, plot_vars_map):
 
-    x_data_list, y_data_list, plot_vars_map = process_data(plot_vars_map, plot_vars_map['process_type'], df_list)
+    x_data_list, y_data_list, plot_vars_map = process_data_by_county(plot_vars_map, plot_vars_map['process_type'], df_list)
 
     if ptype == 'scatter':
         pass
@@ -61,7 +61,90 @@ def plot(ptype, df_list, plot_vars_map):
     else:
         print('Invalid plot type!')
 
-def process_data(plot_vars_map, process_type, df_list):
+# Process by state
+def process_data_by_state(plot_vars_map, process_type, df_list):
+    x_data_list = []
+    y_data_list = []
+
+    def pd_normal(df, beginMonth):
+        x_data = []
+        y_data = []
+
+        for i in df.iloc[:,0]:
+            for j in range(df.shape[1]-1):
+                x_data.append(int(str(i)[-4:]) + (j + beginMonth) / 12)
+
+        for i, row in df.iterrows():
+            for j in row[1:]:
+                y_data.append(j)
+
+        return x_data, y_data
+
+    def pd_monthly(df, beginMonth, endMonth):
+        x_data = [[] for x in range(endMonth + 1 - beginMonth)]
+        y_data = [[] for x in range(endMonth + 1 - beginMonth)]
+
+        for i in df.iloc[:,0]:
+            for j in range(df.shape[1]-1):
+                x_data[j].append(float(str(i)[-4:]))
+        for i, row in df.iterrows():
+            for m, j in enumerate(row[1:]):
+                y_data[m].append(j)
+        return x_data, y_data
+
+    year_size = df_list.shape[1] - 1
+    if process_type == 'normal':
+        for df in df_list:
+            x_data, y_data = pd_normal(df, plot_vars_map['begin_month'])
+            x_data_list.append(x_data)
+            y_data_list.append(y_data)
+    elif process_type == 'monthly':
+        year_size = 1
+        # Convert counties to months, since that's what we're plotting
+        counties = plot_vars_map['names']
+        newNames = []
+        for i in range(len(counties)):
+            for j in range(plot_vars_map['begin_month'], plot_vars_map['end_month']+1):
+                name = headers[1:][j]
+                if len(counties) > 1:
+                    name = counties[i] + '-' + name
+                newNames.append(name)
+        plot_vars_map['names'] = newNames
+
+        for df in df_list:
+            x_data, y_data = pd_monthly(df, plot_vars_map['begin_month'], plot_vars_map['end_month'])
+            x_data_list += x_data
+            y_data_list += y_data
+
+
+    # Duplicate all values but slice off
+    # diff number of years from duplicats
+    if plot_vars_map['double_plot_diff'] != None:
+        new_x_vals = []
+        new_y_vals = []
+        diff = plot_vars_map['double_plot_diff']
+        vals_to_cut = diff * year_size
+
+        for xarr, yarr in zip(x_data_list, y_data_list):
+            new_x = xarr[:-vals_to_cut]
+            new_y = yarr[:-vals_to_cut]
+            new_x_vals.append(new_x)
+            new_y_vals.append(new_y)
+
+        x_data_list += new_x_vals
+        y_data_list += new_y_vals
+
+        # Add new names for these lines
+        names = plot_vars_map['names']
+        newNames = []
+        for n in names:
+            newNames.append(n + '_diff')
+        plot_vars_map['names'] = names + newNames
+
+    return x_data_list, y_data_list, plot_vars_map
+
+# Regular by county
+def process_data_by_county(plot_vars_map, process_type, df_list):
     x_data_list = []
     y_data_list = []
 
