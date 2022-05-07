@@ -318,6 +318,10 @@ class graphPage(tk.Frame):
             canvas.draw()
             canvas.get_tk_widget().grid(row=0, column=0, pady=(50, 0), padx=(10, 600))
 
+            # Toolbar for figure/graph
+            toolbar = NavigationToolbar2Tk(canvas=canvas, window=master, pack_toolbar=False)
+            toolbar.grid(row=0, column=0, pady=(415, 0), padx=(0, 880))
+
             #print("\nHere is the data that the user entered: ")
             #print("Begin date month: ")
             #print(begin_month)
