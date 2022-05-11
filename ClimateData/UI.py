@@ -347,37 +347,40 @@ class graphPage(tk.Frame):
                 self.ent3.grid(row=6, column=1, padx=(240,0), pady=(30,0))
                 year_offset = tk.Label(self.tab, font="10", text="Year Diff: ")
                 year_offset.grid(row=6, column=1, padx=(100, 0), pady=(30,0))
-
+        def forget(widget):
+            widget.grid_forget()
+        
         def gen_equation(event=None):
             self.ent = None
             self.ent2 = None
             if event == None:
                 degree = ''
             else:
+                ent = tk.Entry(self.tab, width="6", textvariable=event.widget.get())
+                degree_label = tk.Label(self.tab, font="10", text="Degree: ")
+                ent2 = tk.Entry(self.tab, width="6")
+                deriv_label = tk.Label(self.tab, font="10", text="Derivitive: ")
+                if event.widget.get() == "Connected" or event.widget.get() == "Linear" or event.widget.get() == "Quadratic" or event.widget.get() == "Cubic":
+                    ent.grid_forget()
+                    degree_label.grid_forget()
+                    ent2.grid_forget()
+                    deriv_label.grid_forget()
+                    print("Hello bro !!")
+                    #degree = event.widget.get()
                 if event.widget.get() == "n-degree..":
-                    self.ent = tkboot.Entry(self.tab, width="6", textvariable=event.widget.get())
-                    self.ent.grid(row=7, column=1, padx=(240,0), pady=(30,0))
-                    degree_label = tk.Label(self.tab, font="10", text="Degree: ")
+                    ent.grid(row=7, column=1, padx=(240,0), pady=(30,0))
                     degree_label.grid(row=7, column=1, padx=(100, 0), pady=(30,0))
+                    print("In function")
                 elif event.widget.get() == 'n-degree derivative':
-                    self.ent = tkboot.Entry(self.tab, width="6", textvariable=event.widget.get())
-                    self.ent.grid(row=7, column=1, padx=(240,0), pady=(30,0))
-                    degree_label = tk.Label(self.tab, font="10", text="Degree: ")
+                    ent.grid(row=7, column=1, padx=(240,0), pady=(30,0))
                     degree_label.grid(row=7, column=1, padx=(100, 0), pady=(30,0))
-                    self.ent2 = tkboot.Entry(self.tab, width="6")
-                    self.ent2.grid(row=8, column=1, padx=(240,0), pady=(0,80))
-                    deriv_label = tk.Label(self.tab, font="10", text="Derivitive: ")
+                    ent2.grid(row=8, column=1, padx=(240,0), pady=(0,80))
                     deriv_label.grid(row=8, column=1, padx=(100, 0), pady=(0,80))
                 elif event.widget.get() == "Connected-Curve":
-                    self.ent = tkboot.Entry(self.tab, width="6", textvariable=event.widget.get())
-                    self.ent.grid(row=7, column=1, padx=(240,0), pady=(30,0))
-                    degree_label = tk.Label(self.tab, font="10", text="Degree: ")
+                    ent.grid(row=7, column=1, padx=(240,0), pady=(30,0))
                     degree_label.grid(row=7, column=1, padx=(100, 0), pady=(30,0))
-                else:
-
-                    degree = event.widget.get()
-                    #print("Degree of equation is: ")
-                    #print(degree_dict[degree])
+                #print("Degree of equation is: ")
+                #print(degree_dict[degree])
             
         def gen_datatype_columns(event):
             print("User selected this data type: " + event.widget.get())
@@ -443,12 +446,14 @@ class graphPage(tk.Frame):
             self.data_table.grid(row=2, column=1, pady=(0,40), padx=(250, 235))
 
         def widgets(frame):
+
             self.tab = tk.Frame(frame, width=1920, height=1080)
+            
             #print(tabs[values])
             #loop[count] = tk.Frame(frame, width=1920, height=1080)
             #Notebook   
             self.notebook_label = tk.Label(self.tab, font="12", text="Notebook:")
-            self.notebook_label.grid(row=1, column=0, padx=(10, 500), pady=10)
+            self.notebook_label.grid(row=0, column=0, padx=(10, 480), pady=10)
 
             #Date range widgets
             self.begin_date_ent = tkboot.Entry(self.tab, textvariable=self.begin_year, width=10)
@@ -518,8 +523,8 @@ class graphPage(tk.Frame):
             self.button_back.grid(row=0, column=1, padx=(0,250), pady=(100, 10))
 
             #Add instance to notebook button
-            self.button_notebook_add = TTK.Button(self.tab, width="25", text="Add instance to notebook", bootstyle="blue")
-            self.button_notebook_add.grid(row=0, column=0, padx=(10,580), pady=(50, 20))
+            #self.button_notebook_add = TTK.Button(self.tab, width="25", text="Add instance to notebook", bootstyle="blue")
+           # self.button_notebook_add.grid(row=0, column=0, padx=(10,580), pady=(50, 20))
 
             #Dropdown for datatype selection
             self.plot_type = TTK.Combobox(self.tab, font="Helvetica 12")
