@@ -352,7 +352,7 @@ class graphPage(tk.Frame):
                                                      'plot_points': plot_points, 'connected_curve': connected_curve,
                                                      'begin_month': monthsIdx[begin_month], 'end_month': monthsIdx[end_month],
                                                      'degree': polynomial_degree, 'deriv_degree': derivitive_degree,
-                                                     'plots_per_graph' : len(df_list), 'names' : (remove_alaska(states) if data_type in state_data_types else counties)})
+                                                     'plots_per_graph' : len(df_list), 'names' : (remove_alaska(states) if self.data_type in state_data_types else counties)})
 
 
 
@@ -367,7 +367,7 @@ class graphPage(tk.Frame):
             self.export_csv_df = export_csv(process_type=process_type, df_list=df_list,
                                             state_dict=(states if self.data_type in state_data_types else temp_dict),
                                             date_range={'begin_month': begin_month, 'begin_year': begin_year,
-                                            'end_month': end_month, 'end_year': end_year}, data_type=data_type,
+                                            'end_month': end_month, 'end_year': end_year}, data_type=self.data_type,
                                             deg=polynomial_degree, deriv=(0 if derivitive_degree is None else derivitive_degree),
                                             drought_data=(True if self.data_type in state_data_types else False))
 
@@ -641,7 +641,7 @@ class graphPage(tk.Frame):
 
                 # Helper function along the column axis
                 def scientific_notation(col):
-                    if col.name != 'Year' and col.name != 'State' and col.name != 'County':
+                    if col.name != 'Year' and col.name != 'State' and col.name != 'County' and col.name != 'Month':
                         # Apply scientific notation along the whole column
                         return col.apply(lambda x: "{:.2e}".format(float(x)))
                     return col
@@ -655,7 +655,7 @@ class graphPage(tk.Frame):
 
                 # Loop through column list for headers
                 for column in self.coeffs_table['columns']:
-                    self.coeffs_table.column(column, width=85, anchor=tk.CENTER)
+                    self.coeffs_table.column(column, stretch=NO, width=85, anchor=tk.CENTER)
                     self.coeffs_table.heading(column, text=column)
                 df_rows = df.to_numpy().tolist()
 
