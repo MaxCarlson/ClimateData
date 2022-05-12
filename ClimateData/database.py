@@ -337,12 +337,15 @@ def get_weather_data(columnList, idList, startYear, endYear):
 
     if columnName == 'tmp_avg' or columnName == 'tmp_min' or columnName == 'tmp_max' or columnName == 'precip':
         table = "weather"
+        for year in range(startYear, endYear+1):
+            for dataId in idList:
+                idYearList.append(str(dataId)+str(year))
     else:
         table = "drought"
-    
-    for year in range(startYear, endYear+1):
-        for dataId in idList:
-            idYearList.append(str(dataId)+str(year))
+        for year in range(startYear, endYear+1):
+            idYearList.append(str(idList)+str(year))
+
+
 
     idString = ", ".join(idYearList)
 
@@ -373,9 +376,12 @@ def get_weather_data(columnList, idList, startYear, endYear):
         cur.close()
         conn.close()
 
-    df = pd.DataFrame(data=results, columns=cols)
-    df = df.loc[:, ~df.columns.duplicated()]
-    df.id = df.id.apply('{:0>11}'.format).astype(str)
+    if results is not None:
+        df = pd.DataFrame(data=results, columns=cols)
+        df.id = df.id.apply('{:0>11}'.format).astype(str)
+    else:
+        df = []
+
     return df
 
 def get_map_weather_data(columnList, idList, startYear, endYear):
@@ -652,7 +658,8 @@ def get_map_data_for_counties(states, counties, country, columns, months, startY
         results = get_map_weather_data(columnList, idList, startYear, endYear)
     else:
         for state in states:
-            stateIds.append(states_id_dict[state])
+            if state != "AK":
+                stateIds.append(states_id_dict[state])
         results = get_map_drought_data(columnList, stateIds, startYear, endYear)
         
         for index, row in results.iterrows():
@@ -685,7 +692,8 @@ def get_map_data_for_states(states, country, columns, months, startYear, endYear
         results = get_map_weather_data(columnList, ids, startYear, endYear)
     else:
         for state in states:
-            stateIds.append(states_id_dict[state])
+            if state != "AK":
+                stateIds.append(states_id_dict[state])
         results = get_map_drought_data(columnList, stateIds, startYear, endYear)
 
         for index, row in results.iterrows():
@@ -733,9 +741,11 @@ def get_data_for_counties_dataset(states, counties, country, columns, months, st
                 results.append(next_set)
     else:
         for state in states:
-            stateIds.append(states_id_dict[state])
-            print(states_id_dict[state])
-        results = get_weather_data(columnList, stateIds, startYear, endYear)
+            if state != "AK":
+                stateIds.append(states_id_dict[state])
+                print(states_id_dict[state])
+        for stateId in stateIds:
+            results.append(get_weather_data(columnList, stateId, startYear, endYear))
     
 
     return results

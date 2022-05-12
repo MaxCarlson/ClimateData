@@ -17,6 +17,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 import MapUI
 from idlelib.tooltip import Hovertip
 from PyQt5.QtWidgets import *                   #pip install PyQt5
+import numpy as np
 from export_csv import export_csv
 import numpy as np
 from pandastable import Table, config
@@ -32,7 +33,17 @@ datatype_dict = {
     "Maximum temperature" : "tmp_max",
     "Minimum temperature" : "tmp_min",
     "Average temperature" : "tmp_avg",
-    "Precipitation"       : "precip"
+    "Precipitation"       : "precip",
+    "Palmer Drought Severity" : "pdsist",
+    "Palmer Hydrological Drought" : "phdist",
+    "Modified Palmer Drought Severity" : "pmdist",
+    "1-month Standardized Precipitation" : "sp01st",
+    "2-month Standardized Precipitation" : "sp02st",
+    "3-month Standardized Precipitation" : "sp03st",
+    "6-month Standardized Precipitation" : "sp06st",
+    "9-month Standardized Precipitation" : "sp09st",
+    "12-month Standardized Precipitation" : "sp12st",
+    "24-month Standardized Precipitation" : "sp24st"
 } 
 
 month_dict = {
@@ -66,6 +77,9 @@ month_abbrev_to_whole = {
     "12" : "December"
 }
 
+# Array for state only data
+state_data_types = np.array(["pdsist", "phdist", "pmdist", "sp01st", "sp02st", "sp03st", "sp06st", "sp09st", "sp12st",
+                              "sp24st"])
 
 # Helper Functions --------------------------------------------------
 
@@ -324,12 +338,24 @@ class graphPage(tk.Frame):
 
             df_list = get_data_for_counties_dataset(states, counties, 'US', [self.data_type], months, int(begin_year), int(end_year))
 
+            # Special case just for if Alaska is selected with drought data
+            def remove_alaska(states_list):
+                try:
+                    states_list.remove('AK')
+                except ValueError:
+                    print("ValueError caught: Alaska was not defined in state list.")
+                finally:
+                    return states_list
+
             counties = list(chain(*counties))
             fig, x_data, y_data = plotting.plot(plot_type, df_list, {'process_type': process_type, 'double_plot_diff': double_plot_diff,
                                                      'plot_points': plot_points, 'connected_curve': connected_curve,
                                                      'begin_month': monthsIdx[begin_month], 'end_month': monthsIdx[end_month],
                                                      'degree': polynomial_degree, 'deriv_degree': derivitive_degree,
-                                                     'plots_per_graph' : len(df_list), 'names' : counties})
+                                                     'plots_per_graph' : len(df_list), 'names' : (remove_alaska(states) if data_type in state_data_types else counties)})
+
+
+
             canvas = FigureCanvasTkAgg(fig, master = master)  
             canvas.draw()
             canvas.get_tk_widget().grid(row=0, column=0, pady=(10, 0), padx=(10, 600))
@@ -562,7 +588,7 @@ class graphPage(tk.Frame):
             self.dropdown_equations = TTK.Combobox(self.tab, font="Helvetica 12")
             self.dropdown_equations.set('Select equation...')
             self.dropdown_equations['state'] = 'readonly'
-            self.dropdown_equations['values'] = ['Connected', 'Connected-Curve', 'Linear',
+            self.dropdown_equations['values'] = ['Connected', 'Connected-Curve', 'Linear', 
                                                  'Quadratic', 'Cubic', 'n-degree..', 'n-degree derivative']
             self.dropdown_equations.bind('<<ComboboxSelected>>', gen_equation)
             self.dropdown_equations.grid(row=7, column=1,  padx=(0, 190), pady=(30, 0))
@@ -572,7 +598,7 @@ class graphPage(tk.Frame):
             self.dropdown_graphs = TTK.Combobox(self.tab, font="Helvetica 12")
             self.dropdown_graphs.set('Select data type...')
             self.dropdown_graphs['state'] = 'readonly'
-            self.dropdown_graphs['values'] = ["Minimum temperature", "Maximum temperature", "Average temperature", "Precipitation"]
+            self.dropdown_graphs['values'] = ["Minimum temperature", "Maximum temperature", "Average temperature", "Precipitation", "Palmer Drought Severity", "Palmer Hydrological Drought", "Modified Palmer Drought Severity", "1-month Standardized Precipitation", "2-month Standardized Precipitation", "3-month Standardized Precipitation", "6-month Standardized Precipitation", "9-month Standardized Precipitation", "12-month Standardized Precipitation", "24-month Standardized Precipitation"]
             self.dropdown_graphs.bind('<<ComboboxSelected>>', gen_datatype_columns)
             self.dropdown_graphs.grid(row=8, column=1,  padx=(0, 200), pady=(40, 0))
             datatypeTip = Hovertip(self.dropdown_graphs, 'Select which type of weather data to graph')
