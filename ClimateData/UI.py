@@ -364,11 +364,12 @@ class graphPage(tk.Frame):
             self.button_coeff = TTK.Button(self.tab, command=gen_coeffs_table,width="15", text="View Coefficients", bootstyle="blue")
             self.button_coeff.grid(row=9, column=1, padx=(220,0), pady=(50, 0))
 
-            self.export_csv_df = export_csv(process_type=process_type, df_list=df_list, state_dict=temp_dict,
-                                                         date_range={'begin_month': begin_month, 'begin_year': begin_year,
-                                                        'end_month': end_month, 'end_year': end_year},
-                                                         data_type=self.data_type, deg=polynomial_degree,
-                                                         deriv=(0 if derivitive_degree is None else derivitive_degree))
+            self.export_csv_df = export_csv(process_type=process_type, df_list=df_list,
+                                            state_dict=(states if data_type in state_data_types else temp_dict),
+                                            date_range={'begin_month': begin_month, 'begin_year': begin_year,
+                                            'end_month': end_month, 'end_year': end_year}, data_type=data_type,
+                                            deg=polynomial_degree, deriv=(0 if derivitive_degree is None else derivitive_degree),
+                                            drought_data=(True if data_type in state_data_types else False))
 
             # Export CSV Button
             self.export_csv_button = TTK.Button(self.tab, command=save_csv_file ,width="16", text="Export data to CSV", bootstyle="blue")
@@ -588,7 +589,7 @@ class graphPage(tk.Frame):
             self.dropdown_equations = TTK.Combobox(self.tab, font="Helvetica 12")
             self.dropdown_equations.set('Select equation...')
             self.dropdown_equations['state'] = 'readonly'
-            self.dropdown_equations['values'] = ['Connected', 'Connected-Curve', 'Linear', 
+            self.dropdown_equations['values'] = ['Connected', 'Connected-Curve', 'Linear',
                                                  'Quadratic', 'Cubic', 'n-degree..', 'n-degree derivative']
             self.dropdown_equations.bind('<<ComboboxSelected>>', gen_equation)
             self.dropdown_equations.grid(row=7, column=1,  padx=(0, 190), pady=(30, 0))
