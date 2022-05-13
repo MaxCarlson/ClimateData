@@ -17,7 +17,6 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 import MapUI
 from idlelib.tooltip import Hovertip
 from PyQt5.QtWidgets import *                   #pip install PyQt5
-import numpy as np
 from export_csv import export_csv
 import numpy as np
 from pandastable import Table, config
