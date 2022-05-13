@@ -258,6 +258,18 @@ class graphPage(tk.Frame):
         def input_not_integer_error(val):
             pass
 
+        def handle_int_submit(ent):
+            if not ent:
+                return True, 0
+
+            val = ent.get()
+            try:
+                val = int(val)
+                return True, val
+            except:
+                input_not_integer_error(val)
+                return False, 0
+
         #The data has been entered/ selected by the user. Here is it:
         def on_enter_data():
 
@@ -313,26 +325,23 @@ class graphPage(tk.Frame):
                 polynomial_degree = None
                 connected_curve = 'Curve' in drop_down
             else:
-                derivitive_degree = None if self.ent2 == None else int(self.ent2.get())
+                ret, ent2Val = handle_int_submit(self.ent2)
+                if ret: return
+
+                derivitive_degree = None if self.ent2 == None else int(ent2Val)
                 plot_type = 'scatter_poly'
                 if derivitive_degree != None:
                     plot_type = 'poly_deriv'
 
-            if connected_curve or not ('Connected' in drop_down):
-                val = self.ent.get()
-                try:
-                    val = int(val)
-                except:
-                    input_not_integer_error(val)
-                    return
-                polynomial_degree = degree_dict[self.dropdown_equations.get()] if self.ent == None else val
 
-            ent3Val = self.ent3.get()
-            try:
-                ent3Val = int(ent3Val)
-            except:
-                input_not_integer_error(ent3Val)
-                return
+            if connected_curve or not ('Connected' in drop_down):
+                ret, entVal = handle_int_submit(self.ent)
+                if ret: return
+
+                polynomial_degree = degree_dict[self.dropdown_equations.get()] if self.ent == None else entVal
+
+            ret, ent3Val = handle_int_submit(self.ent3)
+            if ret: return
             double_plot_diff = None if self.ent3 == None else int(ent3Val)
 
             process_type = 'normal'
