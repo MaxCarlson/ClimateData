@@ -345,7 +345,7 @@ def get_weather_data(columnList, idList, startYear, endYear):
         for year in range(startYear, endYear+1):
             idYearList.append(str(idList)+str(year))
 
-    
+
 
     idString = ", ".join(idYearList)
 
