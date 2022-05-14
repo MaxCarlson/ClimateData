@@ -77,6 +77,8 @@ month_abbrev_to_whole = {
 state_data_types = np.array(["pdsist", "phdist", "pmdist", "sp01st", "sp02st", "sp03st", "sp06st", "sp09st", "sp12st",
                               "sp24st"])
 
+unselected_dropdowns = ['Select line options...', 'Select equation...', 'Select data type...']
+
 # Helper Functions --------------------------------------------------
 
 def validate_dates(start, end):
@@ -248,17 +250,62 @@ class graphPage(tk.Frame):
         def on_checkbox():
             return null
 
+        # TODO: These exception handling functions need to 
+        # interact with the UI and give the user feedback 
+        # on whatever the issues is!!
+        def date_submit_error(date):
+            tkboot.dialogs.Messagebox.show_error(f"Invalid date entry. \nEntry rules: \n- Entry must be in form: 'MM/YYYY' \n- Years must be in chronological order \n- Years must be four digits \n- Entry example: '06/1993'\n You entered: {self.begin_year.get()} || {self.end_year.get()}", title='Invalid date entry')
+            pass
+
+        def unselected_dropdown_error():
+            tkboot.dialogs.Messagebox.show_error(f"A dropdown selection is missing. Please review your selections.", title='Missing Dropdown Selection')
+            pass
+
+        def input_not_integer_error(val):
+            tkboot.dialogs.Messagebox.show_error(f"Invalid entry - input was not in integer format, numerical entries must be integers. ", title='Input Not Integer')
+            pass
+
+        def handle_int_submit(ent):
+            if not ent:
+                return True, 0
+
+            val = ent.get()
+            try:
+                val = int(val)
+                return True, val
+            except:
+                input_not_integer_error(val)
+                return False, 0
+
         #The data has been entered/ selected by the user. Here is it:
         def on_enter_data():
 
-            [begin_month_num, begin_year] = self.begin_year.get().split('/')
-            [end_month_num, end_year] = self.end_year.get().split('/')
-            begin_month = month_dict[begin_month_num]
-            end_month = month_dict[end_month_num]
+            begin_year = self.begin_year.get()
+            end_year = self.end_year.get()
+
+            # Handle improper date formatting
+            try:
+                [begin_month_num, begin_year] = begin_year.split('/')
+                begin_month = month_dict[begin_month_num]
+            except:
+                date_submit_error(begin_year)
+                return
+            try:
+                [end_month_num, end_year] = end_year.split('/')
+                end_month = month_dict[end_month_num]
+            except:
+                date_submit_error(end_year)
+                return
+            
             months = []
             for monthNum in range(int(begin_month_num), int(end_month_num)+1):
                 month = str(monthNum).zfill(2)
                 months.append(month_dict[month])
+
+            # More date handling if the above cases pass
+            if len(months) <= 0:
+                date_submit_error(None)
+                return
 
             #Coefficient Button
             self.button_coeff = TTK.Button(self.tab, width="15", text="View Coefficients", bootstyle="blue")
@@ -271,6 +318,13 @@ class graphPage(tk.Frame):
             plot_points     = self.plot_points_var.get()
             monthly_split   = self.monthly_check_var.get()
 
+            # Handle the case where a dropdown menu item is not selected
+            if (self.plot_type.get() in unselected_dropdowns[0] or
+                self.dropdown_equations.get() in unselected_dropdowns[1] or
+                self.dropdown_graphs.get() in unselected_dropdowns[2]):
+                unselected_dropdown_error()
+                return
+
             connected_curve = None
             derivitive_degree = None
             if 'Connected' in drop_down:
@@ -278,14 +332,24 @@ class graphPage(tk.Frame):
                 polynomial_degree = None
                 connected_curve = 'Curve' in drop_down
             else:
-                derivitive_degree = None if self.ent2 == None else int(self.ent2.get())
+                ret, ent2Val = handle_int_submit(self.ent2)
+                if ret: return
+
+                derivitive_degree = None if self.ent2 == None else int(ent2Val)
                 plot_type = 'scatter_poly'
                 if derivitive_degree != None:
                     plot_type = 'poly_deriv'
 
+
             if connected_curve or not ('Connected' in drop_down):
-                polynomial_degree = degree_dict[self.dropdown_equations.get()] if self.ent == None else int(self.ent.get())
-            double_plot_diff = None if self.ent3 == None else int(self.ent3.get())
+                ret, entVal = handle_int_submit(self.ent)
+                if ret: return
+
+                polynomial_degree = degree_dict[self.dropdown_equations.get()] if self.ent == None else entVal
+
+            ret, ent3Val = handle_int_submit(self.ent3)
+            if ret: return
+            double_plot_diff = None if self.ent3 == None else int(ent3Val)
 
             process_type = 'normal'
             if monthly_split:
@@ -341,7 +405,6 @@ class graphPage(tk.Frame):
                                                      'begin_month': monthsIdx[begin_month], 'end_month': monthsIdx[end_month],
                                                      'degree': polynomial_degree, 'deriv_degree': derivitive_degree,
                                                      'plots_per_graph' : len(df_list), 'names' : (remove_alaska(states) if data_type in state_data_types else counties)})
-
 
 
             canvas = FigureCanvasTkAgg(fig, master = master)  
@@ -567,7 +630,7 @@ class graphPage(tk.Frame):
 
             #Dropdown for datatype selection
             self.plot_type = TTK.Combobox(self.tab, font="Helvetica 12")
-            self.plot_type.set('Select data type...')
+            self.plot_type.set(unselected_dropdowns[0])
             self.plot_type['state'] = 'readonly'
             self.plot_type['values'] = ['Line', 'Yearly Offset']
             self.plot_type.bind('<<ComboboxSelected>>', gen_plot_type)
@@ -575,7 +638,7 @@ class graphPage(tk.Frame):
 
             #Dropdown Widget for equation selection
             self.dropdown_equations = TTK.Combobox(self.tab, font="Helvetica 12")
-            self.dropdown_equations.set('Select equation...')
+            self.dropdown_equations.set(unselected_dropdowns[1])
             self.dropdown_equations['state'] = 'readonly'
             self.dropdown_equations['values'] = ['Connected', 'Connected-Curve', 'Linear', 
                                                  'Quadratic', 'Cubic', 'n-degree..', 'n-degree derivative']
@@ -585,11 +648,11 @@ class graphPage(tk.Frame):
 
             #Dropdown for datatype selection
             self.dropdown_graphs = TTK.Combobox(self.tab, font="Helvetica 12")
-            self.dropdown_graphs.set('Select data type...')
+            self.dropdown_graphs.set(unselected_dropdowns[2])
             self.dropdown_graphs['state'] = 'readonly'
             self.dropdown_graphs['values'] = ["Minimum temperature", "Maximum temperature", "Average temperature", "Precipitation", "Palmer Drought Severity", "Palmer Hydrological Drought", "Modified Palmer Drought Severity", "1-month Standardized Precipitation", "2-month Standardized Precipitation", "3-month Standardized Precipitation", "6-month Standardized Precipitation", "9-month Standardized Precipitation", "12-month Standardized Precipitation", "24-month Standardized Precipitation"]
             self.dropdown_graphs.bind('<<ComboboxSelected>>', gen_datatype_columns)
-            self.dropdown_graphs.grid(row=8, column=1,  padx=(0, 200), pady=(40, 0))
+            self.dropdown_graphs.grid(row=8, column=1,  padx=(0, 190), pady=(40, 0))
             datatypeTip = Hovertip(self.dropdown_graphs, 'Select which type of weather data to graph')
 
 
