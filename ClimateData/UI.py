@@ -254,12 +254,15 @@ class graphPage(tk.Frame):
         # interact with the UI and give the user feedback 
         # on whatever the issues is!!
         def date_submit_error(date):
+            tkboot.dialogs.Messagebox.show_error(f"Invalid date entry. \nEntry rules: \n- Entry must be in form: 'MM/YYYY' \n- Years must be in chronological order \n- Years must be four digits \n- Entry example: '06/1993'\n You entered: {self.begin_year.get()} || {self.end_year.get()}", title='Invalid date entry')
             pass
 
         def unselected_dropdown_error():
+            tkboot.dialogs.Messagebox.show_error(f"A dropdown selection is missing. Please review your selections.", title='Missing Dropdown Selection')
             pass
 
         def input_not_integer_error(val):
+            tkboot.dialogs.Messagebox.show_error(f"Invalid entry - input was not in integer format, numerical entries must be integers. ", title='Input Not Integer')
             pass
 
         def handle_int_submit(ent):
