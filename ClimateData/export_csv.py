@@ -408,13 +408,13 @@ def export_csv(process_type, df_list, state_dict, date_range, data_type, deg, de
     if drought_data == True:
         if process_type == 'monthly':
             return export_csv_split_months_by_state(df_list, state_dict, date_range, data_type, deg, deriv)
-        else:
+        elif process_type == 'normal':
             return export_csv_year_by_state(df_list, state_dict, deg, deriv)
     else:
         # Non drought data (avg, max, min, precip)
         if process_type == 'monthly':
             return export_csv_split_months_by_county(df_list, state_dict, date_range, data_type, deg, deriv)
-        else: # Only else condition currently
+        elif process_type == 'normal': # Only else condition currently
             return export_csv_year_by_county(df_list, state_dict, deg, deriv)
 
 if __name__ == '__main__':

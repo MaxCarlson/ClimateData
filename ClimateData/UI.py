@@ -223,6 +223,9 @@ class graphPage(tk.Frame):
         self.n_degree = tkboot.StringVar(value="")
 
         self.export_csv_df = None
+        self.export_csv_button = None
+        self.button_coeff = None
+
         self.data_type = None
         self.coeffs_table = None
 
@@ -270,13 +273,6 @@ class graphPage(tk.Frame):
             for monthNum in range(int(begin_month_num), int(end_month_num)+1):
                 month = str(monthNum).zfill(2)
                 months.append(month_dict[month])
-
-            #Coefficient Button
-            self.button_coeff = TTK.Button(self.tab, width="15", text="View Coefficients", bootstyle="blue")
-            self.button_coeff.grid(row=9, column=1, padx=(220,0), pady=(50, 0))
-
-            self.button_coeff = TTK.Button(self.tab, width="16", text="Export data to CSV", bootstyle="blue")
-            self.button_coeff.grid(row=9, column=1, padx=(537,0), pady=(50, 0))
 
             drop_down       = self.dropdown_equations.get()
             plot_points     = self.plot_points_var.get()
@@ -357,22 +353,33 @@ class graphPage(tk.Frame):
 
             canvas = FigureCanvasTkAgg(fig, master = master)  
             canvas.draw()
-            canvas.get_tk_widget().grid(row=0, column=0, pady=(10, 0), padx=(10, 600))
+            canvas.get_tk_widget().grid(row=0, column=0, pady=(50, 0), padx=(10, 600))
 
             # Coefficient Button
-            self.button_coeff = TTK.Button(self.tab, command=gen_coeffs_table,width="15", text="View Coefficients", bootstyle="blue")
-            self.button_coeff.grid(row=9, column=1, padx=(220,0), pady=(50, 0))
+            if drop_down == 'Connected':
+                if self.button_coeff is not None:
+                    self.button_coeff.destroy()
+                    self.button_coeff = None
+                if self.export_csv_button is not None:
+                    self.export_csv_button.destroy()
+                    self.export_csv_button = None
+                    self.export_csv_df = None
+            else:
+                self.button_coeff = TTK.Button(self.tab, width="15", text="View Coefficients", bootstyle="blue")
+                self.button_coeff.grid(row=9, column=1, padx=(220,0), pady=(50, 0))
 
-            self.export_csv_df = export_csv(process_type=process_type, df_list=df_list,
-                                            state_dict=(states if self.data_type in state_data_types else temp_dict),
-                                            date_range={'begin_month': begin_month, 'begin_year': begin_year,
-                                            'end_month': end_month, 'end_year': end_year}, data_type=self.data_type,
-                                            deg=polynomial_degree, deriv=(0 if derivitive_degree is None else derivitive_degree),
-                                            drought_data=(True if self.data_type in state_data_types else False))
+                self.export_csv_df = export_csv(process_type=process_type, df_list=df_list,
+                                                state_dict=(states if data_type in state_data_types else temp_dict),
+                                                date_range={'begin_month': begin_month, 'begin_year': begin_year,
+                                                'end_month': end_month, 'end_year': end_year}, data_type=data_type,
+                                                deg=polynomial_degree, deriv=(0 if derivitive_degree is None else derivitive_degree),
+                                                drought_data=(True if data_type in state_data_types else False))
 
-            # Export CSV Button
-            self.export_csv_button = TTK.Button(self.tab, command=save_csv_file ,width="16", text="Export data to CSV", bootstyle="blue")
-            self.export_csv_button.grid(row=9, column=1, padx=(537,0), pady=(50, 0))
+                # Export CSV Button
+                self.export_csv_button = TTK.Button(self.tab, command=save_csv_file ,width="16", text="Export data to CSV", bootstyle="blue")
+                self.export_csv_button.grid(row=9, column=1, padx=(537,0), pady=(50, 0))
+
+
             #print("\nHere is the data that the user entered: ")
             #print("Begin date month: ")
             #print(begin_month)
@@ -588,7 +595,7 @@ class graphPage(tk.Frame):
             self.dropdown_equations = TTK.Combobox(self.tab, font="Helvetica 12")
             self.dropdown_equations.set('Select equation...')
             self.dropdown_equations['state'] = 'readonly'
-            self.dropdown_equations['values'] = ['Connected', 'Connected-Curve', 'Linear',
+            self.dropdown_equations['values'] = ['Connected', 'Connected-Curve', 'Linear', 
                                                  'Quadratic', 'Cubic', 'n-degree..', 'n-degree derivative']
             self.dropdown_equations.bind('<<ComboboxSelected>>', gen_equation)
             self.dropdown_equations.grid(row=7, column=1,  padx=(0, 190), pady=(30, 0))
@@ -600,7 +607,7 @@ class graphPage(tk.Frame):
             self.dropdown_graphs['state'] = 'readonly'
             self.dropdown_graphs['values'] = ["Minimum temperature", "Maximum temperature", "Average temperature", "Precipitation", "Palmer Drought Severity", "Palmer Hydrological Drought", "Modified Palmer Drought Severity", "1-month Standardized Precipitation", "2-month Standardized Precipitation", "3-month Standardized Precipitation", "6-month Standardized Precipitation", "9-month Standardized Precipitation", "12-month Standardized Precipitation", "24-month Standardized Precipitation"]
             self.dropdown_graphs.bind('<<ComboboxSelected>>', gen_datatype_columns)
-            self.dropdown_graphs.grid(row=8, column=1,  padx=(0, 200), pady=(40, 0))
+            self.dropdown_graphs.grid(row=8, column=1,  padx=(0, 190), pady=(30, 0))
             datatypeTip = Hovertip(self.dropdown_graphs, 'Select which type of weather data to graph')
 
 
