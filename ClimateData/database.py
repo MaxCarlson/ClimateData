@@ -514,6 +514,62 @@ def get_map_drought_data(columnList, idList, startYear, endYear):
     df = pd.DataFrame(data=results, columns=cols)
     return df
 
+def get_column_names(table_name):
+    colnames = []
+    try:
+        conn = psycopg2.connect(config.config_get_db_connection_string())
+    except OperationalError as error:
+        print_psycopg2_exception(error)
+        conn = None
+
+    if conn != None:
+        cur = conn.cursor()
+
+        try:
+            cur.execute("""
+            SELECT * FROM %s LIMIT 0;
+            """,
+            [AsIs(table_name)])
+        except Exception as error:
+            print_psycopg2_exception(error)
+
+        try:
+            colnames = [desc[0] for desc in cur.description]
+        except Exception as error:
+            print(error)
+
+        cur.close()
+        conn.close()
+
+    return colnames
+
+def get_valid_dataset_names():
+    columnList = []
+    months = [ 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec' ]
+
+    drought_columns = get_column_names('drought')
+    weather_columns = get_column_names('weather')
+    population_columns = get_column_names('population')
+
+    # get unique column names from drought table (without _month suffix)
+    for column in drought_columns:
+        if column != 'id':
+            value = min([column.removesuffix(f'_{x}') for x in months])
+            if value not in columnList:
+                columnList.append(value)
+
+    # get unique column names from weather table (without _month suffix)
+    for column in weather_columns:
+        if column != 'id':
+            value = min([column.removesuffix(f'_{x}') for x in months])
+            if value not in columnList:
+                columnList.append(value)
+
+
+
+
+    return columnList
+
 def get_key(val):
     for key, value in states_id_dict.items():
          if int(val) == value:

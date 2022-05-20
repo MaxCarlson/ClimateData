@@ -146,7 +146,7 @@ def convert_county_coords(skip_download_if_save_file_exists):
 
 def build_weather_table(skip_download_if_save_file_exists):
     filesToStrip = ['avgtmp', 'maxtmp', 'mintmp', 'precip']
-    urlPaths = ['climdiv-tmpccy', 'climdiv-tmaxcy', 'climdiv-tmincy', 'climdiv-pcpncy']
+    urlPaths = ['climdiv-tmpccy', 'climdiv-tmaxcy', 'climdiv-tmincy', 'climdiv-pcpncy_']
     colsPrefix = ['tmp_avg', 'tmp_max', 'tmp_min', 'precip']
     dataFiles = {}
 
@@ -160,13 +160,19 @@ def build_weather_table(skip_download_if_save_file_exists):
 
     # download weather data
     for filename, url_path in zip(filesToStrip, urlPaths):
-      url_path_idx = weather_directory.index(url_path)
-      url_path_end_idx = weather_directory.index('"', url_path_idx)
-      path = weather_directory[url_path_idx:url_path_end_idx]
-      dataFiles[filename] = download(f'https://www1.ncdc.noaa.gov/pub/data/cirs/climdiv/{path}', f'{weatherDir}climdiv-{filename}.txt', skip_download_if_save_file_exists)
-
+      try:
+        url_path_idx = weather_directory.index(url_path)
+        url_path_end_idx = weather_directory.index('"', url_path_idx)
+        path = weather_directory[url_path_idx:url_path_end_idx]
+        dataFiles[filename] = download(f'https://www1.ncdc.noaa.gov/pub/data/cirs/climdiv/{path}', f'{weatherDir}climdiv-{filename}.txt', skip_download_if_save_file_exists)
+      except Exception as error:
+        print(error)
 
     for filename, prefix, i in zip(filesToStrip, colsPrefix, range(len(colsPrefix))):
+
+        # skip empty data
+        if filename not in dataFiles or dataFiles[filename] is None or dataFiles[filename] == '':
+          continue
 
         # Build column names
         cols = ['id INTEGER PRIMARY KEY']
@@ -214,7 +220,7 @@ def build_weather_table(skip_download_if_save_file_exists):
 
 def build_drought_table(skip_download_if_save_file_exists):
   
-    urlPaths = ['climdiv-pdsist', 'climdiv-phdist', 'climdiv-pmdist', 'climdiv-sp01st', 'climdiv-sp02st', 'climdiv-sp03st', 'climdiv-sp06st', 'climdiv-sp09st', 'climdiv-sp12st', 'climdiv-sp24st']
+    urlPaths = ['climdiv-pdsist', 'climdiv-phdist', 'climdiv-pmdist', 'climdiv-sp01st_', 'climdiv-sp02st', 'climdiv-sp03st', 'climdiv-sp06st', 'climdiv-sp09st', 'climdiv-sp12st', 'climdiv-sp24st']
     dataFiles = {}
 
     icols = [i for i in range(len(months) + 1)]
@@ -227,13 +233,21 @@ def build_drought_table(skip_download_if_save_file_exists):
 
     # download weather data
     for url_path in urlPaths:
-      url_path_idx = weather_directory.index(url_path)
-      url_path_end_idx = weather_directory.index('"', url_path_idx)
-      path = weather_directory[url_path_idx:url_path_end_idx]
-      dataFiles[url_path] = download(f'https://www1.ncdc.noaa.gov/pub/data/cirs/climdiv/{path}', f'{droughtDir}{url_path}.txt', skip_download_if_save_file_exists)
+      try:
+        url_path_idx = weather_directory.index(url_path)
+        url_path_end_idx = weather_directory.index('"', url_path_idx)
+        path = weather_directory[url_path_idx:url_path_end_idx]
+        dataFiles[url_path] = download(f'https://www1.ncdc.noaa.gov/pub/data/cirs/climdiv/{path}', f'{droughtDir}{url_path}.txt', skip_download_if_save_file_exists)
+      except Exception as error:
+        print(error)
 
     for i, path in enumerate(urlPaths):
         datatype = path[8:]
+        
+        # skip empty data
+        if path not in dataFiles or dataFiles[path] is None or dataFiles[path] == '':
+          continue
+
         cols = ['id INTEGER PRIMARY KEY']
         for m in months:
             cols.append(f'{datatype}_{m} FLOAT')
@@ -498,5 +512,5 @@ def create_working_directory():
 
 if __name__ == '__main__':
   create_working_directory()
-  process_files()
+  process_files(force_data_redownload=False)
 

@@ -107,6 +107,15 @@ def validate_degree(degree):
 
 class App(tk.Tk):
     def __init__(self, *args, **kwargs):
+
+        # construct list of data sources
+        # remove missing data sources from datatype_dict
+        # as the database does not have that data
+        data_sources = get_valid_dataset_names()
+        for key, value in list(datatype_dict.items()):
+            if value not in data_sources:
+                datatype_dict.pop(key)
+
         tk.Tk.__init__(self, *args, **kwargs)
         self.title('Climate Data')
         self.geometry('1920x1080')
@@ -201,9 +210,9 @@ class StartPage(tk.Frame):
          # Empty canvas
          # Pre-populated canvas
         '''
-        img = tk.PhotoImage(file='images/cubic_graph.png')
-        label = tk.Label(self, image=img)
-        label.image = img
+        #img = tk.PhotoImage(file='images/cubic_graph.png')
+        label = tk.Label(self, image=None)
+        label.image = None
         label.grid(row=0, column=0, padx=(20,10), pady=(100,20))
 
 
@@ -593,7 +602,7 @@ class graphPage(tk.Frame):
             self.dropdown_graphs = TTK.Combobox(self.tab, font="Helvetica 12")
             self.dropdown_graphs.set('Select data type...')
             self.dropdown_graphs['state'] = 'readonly'
-            self.dropdown_graphs['values'] = ["Minimum temperature", "Maximum temperature", "Average temperature", "Precipitation", "Palmer Drought Severity", "Palmer Hydrological Drought", "Modified Palmer Drought Severity", "1-month Standardized Precipitation", "2-month Standardized Precipitation", "3-month Standardized Precipitation", "6-month Standardized Precipitation", "9-month Standardized Precipitation", "12-month Standardized Precipitation", "24-month Standardized Precipitation"]
+            self.dropdown_graphs['values'] = [x for x in datatype_dict.keys()]
             self.dropdown_graphs.bind('<<ComboboxSelected>>', gen_datatype_columns)
             self.dropdown_graphs.grid(row=8, column=1,  padx=(0, 190), pady=(30, 0))
             datatypeTip = Hovertip(self.dropdown_graphs, 'Select which type of weather data to graph')
