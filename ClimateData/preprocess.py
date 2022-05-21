@@ -146,7 +146,7 @@ def convert_county_coords(skip_download_if_save_file_exists):
 
 def build_weather_table(skip_download_if_save_file_exists):
     filesToStrip = ['avgtmp', 'maxtmp', 'mintmp', 'precip']
-    urlPaths = ['climdiv-tmpccy', 'climdiv-tmaxcy', 'climdiv-tmincy', 'climdiv-pcpncy_']
+    urlPaths = ['climdiv-tmpccy', 'climdiv-tmaxcy', 'climdiv-tmincy', 'climdiv-pcpncy']
     colsPrefix = ['tmp_avg', 'tmp_max', 'tmp_min', 'precip']
     dataFiles = {}
 
@@ -220,7 +220,7 @@ def build_weather_table(skip_download_if_save_file_exists):
 
 def build_drought_table(skip_download_if_save_file_exists):
   
-    urlPaths = ['climdiv-pdsist', 'climdiv-phdist', 'climdiv-pmdist', 'climdiv-sp01st_', 'climdiv-sp02st', 'climdiv-sp03st', 'climdiv-sp06st', 'climdiv-sp09st', 'climdiv-sp12st', 'climdiv-sp24st']
+    urlPaths = ['climdiv-pdsist', 'climdiv-phdist', 'climdiv-pmdist', 'climdiv-sp01st', 'climdiv-sp02st', 'climdiv-sp03st', 'climdiv-sp06st', 'climdiv-sp09st', 'climdiv-sp12st', 'climdiv-sp24st']
     dataFiles = {}
 
     icols = [i for i in range(len(months) + 1)]

@@ -210,9 +210,9 @@ class StartPage(tk.Frame):
          # Empty canvas
          # Pre-populated canvas
         '''
-        #img = tk.PhotoImage(file='images/cubic_graph.png')
-        label = tk.Label(self, image=None)
-        label.image = None
+        img = None #tk.PhotoImage(file='images/cubic_graph.png')
+        label = tk.Label(self, image=img)
+        label.image = img
         label.grid(row=0, column=0, padx=(20,10), pady=(100,20))
 
 
