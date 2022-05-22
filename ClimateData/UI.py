@@ -17,6 +17,8 @@ from idlelib.tooltip import Hovertip
 from PyQt5.QtWidgets import *                   #pip install PyQt5
 from export_csv import export_csv
 import numpy as np
+from datetime import date
+
 
 # Dictionaries
 degree_dict = {
@@ -502,9 +504,16 @@ class graphPage(tk.Frame):
 
             #Date range widgets
             self.begin_date_ent = tkboot.Entry(self.tab, textvariable=self.begin_year, width=10)
+            self.begin_date_ent.insert(0, "01/1895")
             self.begin_date_ent.grid(row=4, column=1, padx=(40,0), pady=(0,0))
 
             self.end_date_ent = tkboot.Entry(self.tab, textvariable=self.end_year, width=10)
+            #get_latest_date
+            today = date.today()
+            latestDate = today.strftime("%d/%m/%Y")
+            nextMonth = "0"+ str(int(latestDate[3:5])-1)
+            latestDate = nextMonth + latestDate[5:]
+            self.end_date_ent.insert(0, latestDate)
             self.end_date_ent.grid(row=5, column=1, padx=(40, 0), pady=(0,0))
 
             self.begin_date_label = tkboot.Label(self.tab, font="10", text="Date range begin: ", bootstyle="inverse-dark")
