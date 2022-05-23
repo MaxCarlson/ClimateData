@@ -345,6 +345,7 @@ class graphPage(tk.Frame):
 
             # Toolbar for figure/graph
             toolbar = NavigationToolbar2Tk(canvas=canvas, window=master, pack_toolbar=False)
+            toolbar.configure(bg='white')
             toolbar.grid(row=0, column=0, pady=(415, 0), padx=(0, 880))
 
             # Coefficient Button
