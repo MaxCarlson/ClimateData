@@ -408,7 +408,7 @@ class graphPage(tk.Frame):
                 self.export_csv_button.grid_columnconfigure(1,weight=1)
                 self.export_csv_button.grid_columnconfigure(2,weight=1)
                 self.export_csv_button.grid_rowconfigure(0,weight=1)
-                self.export_csv_button.grid_rowconfigure(1,weight=1)
+                self.export_csv_button.grid_rowconfigure(9,weight=1)
 
         def gen_plot_type(event=None):
             if event.widget.get() == 'Yearly Offset':
@@ -418,14 +418,14 @@ class graphPage(tk.Frame):
                 self.ent3.grid_columnconfigure(1,weight=1)
                 self.ent3.grid_columnconfigure(2,weight=1)
                 self.ent3.grid_rowconfigure(0,weight=1)
-                self.ent3.grid_rowconfigure(1,weight=1)
+                self.ent3.grid_rowconfigure(6,weight=1)
                 self.year_offset = tk.Label(self.tab, font="10", text="Year Diff: ")
                 self.year_offset.grid(row=6, column=1, padx=(100, 0), pady=(30,0))
                 self.year_offset.grid_columnconfigure(0,weight=1)
                 self.year_offset.grid_columnconfigure(1,weight=1)
                 self.year_offset.grid_columnconfigure(2,weight=1)
                 self.year_offset.grid_rowconfigure(0,weight=1)
-                self.year_offset.grid_rowconfigure(1,weight=1)
+                self.year_offset.grid_rowconfigure(6,weight=1)
             else:
                 if self.ent3 is not None:
                     self.ent3.destroy()
@@ -456,13 +456,13 @@ class graphPage(tk.Frame):
                     self.ent.grid_columnconfigure(1,weight=1)
                     self.ent.grid_columnconfigure(2,weight=1)
                     self.ent.grid_rowconfigure(0,weight=1)
-                    self.ent.grid_rowconfigure(1,weight=1)
+                    self.ent.grid_rowconfigure(7,weight=1)
                     self.degree_label = tk.Label(self.tab, font="10", text="Degree: ")
                     self.degree_label.grid(row=7, column=1, padx=(100, 0), pady=(30,0))
                     self.degree_label.grid_columnconfigure(1,weight=1)
                     self.degree_label.grid_columnconfigure(2,weight=1)
                     self.degree_label.grid_rowconfigure(0,weight=1)
-                    self.degree_label.grid_rowconfigure(1,weight=1)
+                    self.degree_label.grid_rowconfigure(7,weight=1)
                 elif event.widget.get() == 'n-degree derivative':
                     self.ent = tkboot.Entry(self.tab, width="6", textvariable=event.widget.get())
                     self.ent.grid(row=7, column=1, padx=(240,0), pady=(30,0))
@@ -470,26 +470,26 @@ class graphPage(tk.Frame):
                     self.ent.grid_columnconfigure(1,weight=1)
                     self.ent.grid_columnconfigure(2,weight=1)
                     self.ent.grid_rowconfigure(0,weight=1)
-                    self.ent.grid_rowconfigure(1,weight=1)
+                    self.ent.grid_rowconfigure(7,weight=1)
                     self.degree_label = tk.Label(self.tab, font="10", text="Degree: ")
                     self.degree_label.grid(row=7, column=1, padx=(100, 0), pady=(30,0))
                     self.degree_label.grid_columnconfigure(1,weight=1)
                     self.degree_label.grid_columnconfigure(2,weight=1)
                     self.degree_label.grid_rowconfigure(0,weight=1)
-                    self.degree_label.grid_rowconfigure(1,weight=1)
+                    self.degree_label.grid_rowconfigure(7,weight=1)
                     self.ent2 = tkboot.Entry(self.tab, width="6")
                     self.ent2.grid(row=8, column=1, padx=(240,0), pady=(0,80))
                     self.ent2.grid_columnconfigure(0,weight=1)
                     self.ent2.grid_columnconfigure(1,weight=1)
                     self.ent2.grid_columnconfigure(2,weight=1)
                     self.ent2.grid_rowconfigure(0,weight=1)
-                    self.ent2.grid_rowconfigure(1,weight=1)
+                    self.ent2.grid_rowconfigure(8,weight=1)
                     self.deriv_label = tk.Label(self.tab, font="10", text="Derivitive: ")
                     self.deriv_label.grid(row=8, column=1, padx=(100, 0), pady=(0,80))
                     self.deriv_label.grid_columnconfigure(1,weight=1)
                     self.deriv_label.grid_columnconfigure(2,weight=1)
                     self.deriv_label.grid_rowconfigure(0,weight=1)
-                    self.deriv_label.grid_rowconfigure(1,weight=1)
+                    self.deriv_label.grid_rowconfigure(8,weight=1)
                 elif event.widget.get() == "Connected-Curve":
                     self.ent = tkboot.Entry(self.tab, width="6", textvariable=event.widget.get())
                     self.ent.grid(row=7, column=1, padx=(240,0), pady=(30,0))
@@ -497,13 +497,13 @@ class graphPage(tk.Frame):
                     self.ent.grid_columnconfigure(1,weight=1)
                     self.ent.grid_columnconfigure(2,weight=1)
                     self.ent.grid_rowconfigure(0,weight=1)
-                    self.ent.grid_rowconfigure(1,weight=1)
+                    self.ent.grid_rowconfigure(7,weight=1)
                     self.degree_label = tk.Label(self.tab, font="10", text="Degree: ")
                     self.degree_label.grid(row=7, column=1, padx=(100, 0), pady=(30,0))
                     self.degree_label.grid_columnconfigure(1,weight=1)
                     self.degree_label.grid_columnconfigure(2,weight=1)
                     self.degree_label.grid_rowconfigure(0,weight=1)
-                    self.degree_label.grid_rowconfigure(1,weight=1)
+                    self.degree_label.grid_rowconfigure(7,weight=1)
                 else:
                     degree = event.widget.get()
                     #print("Degree of equation is: ")
@@ -541,7 +541,7 @@ class graphPage(tk.Frame):
             data = ['All Counties'] + data
             print(data)
             self.dropdown_county['values'] = data
-            self.dropdown_county.grid(row=1, column=1, padx=(290, 0), pady=(0, 0))
+            self.dropdown_county.grid(row=3, column=1, padx=(290, 0), pady=(0, 0))
             self.dropdown_county.grid_columnconfigure(1,weight=1)
             self.dropdown_county.grid_columnconfigure(2,weight=1)
             self.dropdown_county.grid_rowconfigure(0,weight=1)
@@ -567,7 +567,7 @@ class graphPage(tk.Frame):
             self.date_table.grid_columnconfigure(1,weight=1)
             self.date_table.grid_columnconfigure(2,weight=1)
             self.date_table.grid_rowconfigure(0,weight=1)
-            self.date_table.grid_rowconfigure(1,weight=1)
+            self.date_table.grid_rowconfigure(7,weight=1)
 
         def gen_table(event=None):
             if event == None:
@@ -587,11 +587,11 @@ class graphPage(tk.Frame):
             for row in data:
                 print(row)
                 self.data_table.insert(parent='', index='end', values=row)
-            self.data_table.grid(row=2, column=1, pady=(0,83), padx=(250, 235))
+            self.data_table.grid(row=2, column=1, pady=(0,0), padx=(0, 0))
             self.date_table.grid_columnconfigure(1,weight=1)
             self.date_table.grid_columnconfigure(2,weight=1)
             self.date_table.grid_rowconfigure(0,weight=1)
-            self.date_table.grid_rowconfigure(1,weight=1)
+            self.date_table.grid_rowconfigure(2,weight=1)
             print("This: ", self.data_table.get_children())
 
 
@@ -628,13 +628,13 @@ class graphPage(tk.Frame):
             self.begin_date_label.grid_columnconfigure(1,weight=1)
             self.begin_date_label.grid_columnconfigure(2,weight=1)
             self.begin_date_label.grid_rowconfigure(0,weight=1)
-            self.begin_date_label.grid_rowconfigure(1,weight=1)
+            self.begin_date_label.grid_rowconfigure(4,weight=1)
 
             self.end_date_label.grid_columnconfigure(0,weight=1)
             self.end_date_label.grid_columnconfigure(1,weight=1)
             self.end_date_label.grid_columnconfigure(2,weight=1)
             self.end_date_label.grid_rowconfigure(0,weight=1)
-            self.end_date_label.grid_rowconfigure(1,weight=1)
+            self.end_date_label.grid_rowconfigure(5,weight=1)
 
             # Initialize Table Widget
             self.data_table = TTK.Treeview(self.tab, height=7)
@@ -659,12 +659,12 @@ class graphPage(tk.Frame):
             #Delete selected rows from the table
             delete_btn = tkboot.Button(self.tab, text="Delete row(s)", command=delete_from_table)
             delete_btnTip = Hovertip(delete_btn, 'Delete selected row(s) from table')
-            delete_btn.grid(row=2, column=1, padx=(560,0), pady=(0,210))
+            delete_btn.grid(row=2, column=1, padx=(560,0), pady=(0,0))
             delete_btn.grid_columnconfigure(0,weight=1)
             delete_btn.grid_columnconfigure(1,weight=1)
             delete_btn.grid_columnconfigure(2,weight=1)
             delete_btn.grid_rowconfigure(0,weight=1)
-            delete_btn.grid_rowconfigure(1,weight=1)
+            delete_btn.grid_rowconfigure(2,weight=1)
 
             #Delete every row from the table
             delete_all_rows = tkboot.Button(self.tab, text="Delete all", command=delete_all_from_table)
@@ -674,7 +674,7 @@ class graphPage(tk.Frame):
             delete_all_rows.grid_columnconfigure(1,weight=1)
             delete_all_rows.grid_columnconfigure(2,weight=1)
             delete_all_rows.grid_rowconfigure(0,weight=1)
-            delete_all_rows.grid_rowconfigure(1,weight=1)
+            delete_all_rows.grid_rowconfigure(2,weight=1)
 
             #Table widget for specific dates
             self.date_table = TTK.Treeview(self.tab, height=5)
@@ -700,7 +700,7 @@ class graphPage(tk.Frame):
             self.dropdown_state.grid_columnconfigure(1,weight=1)
             self.dropdown_state.grid_columnconfigure(2,weight=1)
             self.dropdown_state.grid_rowconfigure(0,weight=1)
-            self.dropdown_state.grid_rowconfigure(1,weight=1)
+            self.dropdown_state.grid_rowconfigure(3,weight=1)
 
             # Initialize Counties Dropdown Widget
             self.dropdown_county = TTK.Combobox(self.tab, font="Helvetica 12")
@@ -713,10 +713,10 @@ class graphPage(tk.Frame):
             self.dropdown_county.grid_columnconfigure(1,weight=1)
             self.dropdown_county.grid_columnconfigure(2,weight=1)
             self.dropdown_county.grid_rowconfigure(0,weight=1)
-            self.dropdown_county.grid_rowconfigure(1,weight=1)
+            self.dropdown_county.grid_rowconfigure(3,weight=1)
 
             self.button2 = TTK.Button(self.tab, text = "Open map", width="15", bootstyle="secondary", command=lambda: controller.open_map("TODO:"))
-            self.button2.grid(row=1, column=1, padx=(0,250), pady=(50, 10))
+            self.button2.grid(row=1, column=1, padx=(0,250), pady=(0,0))
             self.button2.grid_columnconfigure(0,weight=1)
             self.button2.grid_columnconfigure(1,weight=1)
             self.button2.grid_columnconfigure(2,weight=1)
@@ -735,7 +735,7 @@ class graphPage(tk.Frame):
             self.dropdown_equations.grid_columnconfigure(1,weight=1)
             self.dropdown_equations.grid_columnconfigure(2,weight=1)
             self.dropdown_equations.grid_rowconfigure(0,weight=1)
-            self.dropdown_equations.grid_rowconfigure(1,weight=1)
+            self.dropdown_equations.grid_rowconfigure(7,weight=1)
 
 
             #Dropdown for datatype selection
@@ -750,7 +750,7 @@ class graphPage(tk.Frame):
             self.dropdown_graphs.grid_columnconfigure(1,weight=1)
             self.dropdown_graphs.grid_columnconfigure(2,weight=1)
             self.dropdown_graphs.grid_rowconfigure(0,weight=1)
-            self.dropdown_graphs.grid_rowconfigure(1,weight=1)
+            self.dropdown_graphs.grid_rowconfigure(8,weight=1)
 
 
             #Button for submitting all that the user has entered
@@ -766,7 +766,7 @@ class graphPage(tk.Frame):
             self.data_submit.grid_columnconfigure(1,weight=1)
             self.data_submit.grid_columnconfigure(2,weight=1)
             self.data_submit.grid_rowconfigure(0,weight=1)
-            self.data_submit.grid_rowconfigure(1,weight=1)
+            self.data_submit.grid_rowconfigure(9,weight=1)
 
             # Generate Table Rows
             gen_table()
@@ -814,8 +814,9 @@ class graphPage(tk.Frame):
         self.grid_columnconfigure(0,weight=1)
         self.grid_columnconfigure(1,weight=1)
         self.grid_columnconfigure(2,weight=1)
-        self.grid_rowconfigure(0,weight=1)
-        self.grid_rowconfigure(1,weight=1)
+        self.grid_rowconfigure(4,weight=1)
+        self.grid_rowconfigure(5,weight=1)
+        self.grid_rowconfigure(6,weight=1)
         # Generate Table Rows
         gen_table()
 
