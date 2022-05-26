@@ -377,7 +377,7 @@ class graphPage(tk.Frame):
 
             image_graph = FigureCanvasTkAgg(fig, master = master)  
             image_graph.draw()
-            image_graph.get_tk_widget().grid(row=0, column=0, pady=(50, 0), padx=(10, 600))
+            image_graph.get_tk_widget().grid(row=0, column=0, pady=(50, 0), padx=(10, 560))
             image_graph.grid_columnconfigure(0,weight=1)
             image_graph.grid_columnconfigure(1,weight=1)
             image_graph.grid_columnconfigure(2,weight=1)
@@ -541,7 +541,7 @@ class graphPage(tk.Frame):
             data = ['All Counties'] + data
             print(data)
             self.dropdown_county['values'] = data
-            self.dropdown_county.grid(row=3, column=1, padx=(290, 0), pady=(0, 0))
+            self.dropdown_county.grid(row=1, column=1, padx=(290, 0), pady=(0, 0))
             self.dropdown_county.grid_columnconfigure(1,weight=1)
             self.dropdown_county.grid_columnconfigure(2,weight=1)
             self.dropdown_county.grid_rowconfigure(0,weight=1)
@@ -659,7 +659,7 @@ class graphPage(tk.Frame):
             #Delete selected rows from the table
             delete_btn = tkboot.Button(self.tab, text="Delete row(s)", command=delete_from_table)
             delete_btnTip = Hovertip(delete_btn, 'Delete selected row(s) from table')
-            delete_btn.grid(row=2, column=1, padx=(560,0), pady=(0,0))
+            delete_btn.grid(row=2, column=1, padx=(560,50),pady=(0,50))
             delete_btn.grid_columnconfigure(0,weight=1)
             delete_btn.grid_columnconfigure(1,weight=1)
             delete_btn.grid_columnconfigure(2,weight=1)
@@ -695,7 +695,7 @@ class graphPage(tk.Frame):
             self.dropdown_state['state'] = 'readonly'
             self.dropdown_state['values'] = (['All states', 'AK','AL','AR','AZ','CA','CO','CT','DE','FL','GA','IA','ID','IL','IN','KS','KY','LA','MA','MD','ME','MI','MN','MO','MS','MT','NC','ND','NE','NH','NJ','NM','NV','NY','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VA','VT','WA','WI','WV','WY'])
             self.dropdown_state.bind('<<ComboboxSelected>>', gen_counties)
-            self.dropdown_state.grid(row=3, column=1, padx=(0, 190), pady=(20,20))
+            self.dropdown_state.grid(row=1, column=1, padx=(0, 190), pady=(20,20))
             self.dropdown_state.grid_columnconfigure(0,weight=1)
             self.dropdown_state.grid_columnconfigure(1,weight=1)
             self.dropdown_state.grid_columnconfigure(2,weight=1)
@@ -708,7 +708,7 @@ class graphPage(tk.Frame):
             self.dropdown_county['state'] = 'readonly'
             self.dropdown_county['values'] = (['No state selected'])
             self.dropdown_county.bind('<<ComboboxSelected>>', gen_table)
-            self.dropdown_county.grid(row=3, column=1, padx=(290, 0), pady=(20, 20))
+            self.dropdown_county.grid(row=1, column=1, padx=(290, 0), pady=(20, 20))
             self.dropdown_county.grid_columnconfigure(0,weight=1)
             self.dropdown_county.grid_columnconfigure(1,weight=1)
             self.dropdown_county.grid_columnconfigure(2,weight=1)
@@ -716,7 +716,7 @@ class graphPage(tk.Frame):
             self.dropdown_county.grid_rowconfigure(3,weight=1)
 
             self.button2 = TTK.Button(self.tab, text = "Open map", width="15", bootstyle="secondary", command=lambda: controller.open_map("TODO:"))
-            self.button2.grid(row=1, column=1, padx=(0,250), pady=(0,0))
+            self.button2.grid(row=0, column=1, padx=(0,250), pady=(0,0))
             self.button2.grid_columnconfigure(0,weight=1)
             self.button2.grid_columnconfigure(1,weight=1)
             self.button2.grid_columnconfigure(2,weight=1)
