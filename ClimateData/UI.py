@@ -381,11 +381,6 @@ class graphPage(tk.Frame):
             image_graph = FigureCanvasTkAgg(fig, master = master)  
             image_graph.draw()
             image_graph.get_tk_widget().grid(row=0, column=0, pady=(0, 0), padx=(30, 550))
-            image_graph.grid_columnconfigure(0,weight=1)
-            image_graph.grid_columnconfigure(1,weight=1)
-            image_graph.grid_columnconfigure(2,weight=1)
-            image_graph.grid_rowconfigure(0,weight=1)
-            image_graph.grid_rowconfigure(1,weight=1)
 
             # Coefficient Button
             if drop_down == 'Connected':
