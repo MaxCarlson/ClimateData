@@ -819,7 +819,7 @@ class graphPage(tk.Frame):
         # Hide Plot Legend checkbox
         self.plot_hide_legend_var = tk.IntVar()
         self.plot_hide_legend = TTK.Checkbutton(self.tab, text='Hide Plot Legend', variable=self.plot_hide_legend_var)
-        self.plot_hide_legend.grid(row=6, column=1,  padx=(330, 0), pady=(10, 0))
+        self.plot_hide_legend.grid(row=5, column=1,  padx=(330, 0), pady=(60, 0))
         hideLegendTip = Hovertip(self.plot_hide_legend, 'Check to disable the legend on the graph')
 
         #Dropdown for plot type  selection
