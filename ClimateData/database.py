@@ -917,6 +917,34 @@ def get_counties_for_state(state):
 
     return results
 
+def get_all_counties():
+    results = None
+    try:
+        conn = psycopg2.connect(config.config_get_db_connection_string())
+    except OperationalError as error:
+        print_psycopg2_exception(error)
+        conn = None
+
+    if conn != None:
+        cur = conn.cursor()
+        try:
+            cur.execute("""
+            SELECT county_name FROM county_codes;
+            """,)
+            conn.commit()
+            results = cur.fetchall()
+        except Exception as error:
+            print_psycopg2_exception(error)
+
+        cur.close()
+        conn.close()
+    if results is None:
+        print("No counties were found for retrieving all counties")
+        results = ""
+
+    return results
+
+
 
 def get_counties_for_state_all_data(state):
     results = None
@@ -933,6 +961,34 @@ def get_counties_for_state_all_data(state):
             SELECT state, county_name, county_code, country FROM county_codes WHERE state = %s;
             """,
             [state])
+            conn.commit()
+            results = cur.fetchall()
+        except Exception as error:
+            print_psycopg2_exception(error)
+
+        cur.close()
+        conn.close()
+    if results is None:
+        print("No county was found for given state")
+        results = ""
+
+    return results
+
+
+def get_all_counties_all_data():
+    results = None
+    try:
+        conn = psycopg2.connect(config.config_get_db_connection_string())
+    except OperationalError as error:
+        print_psycopg2_exception(error)
+        conn = None
+
+    if conn != None:
+        cur = conn.cursor()
+        try:
+            cur.execute("""
+            SELECT state, county_name, county_code, country FROM county_codes;
+            """,)
             conn.commit()
             results = cur.fetchall()
         except Exception as error:

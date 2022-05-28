@@ -50,14 +50,15 @@ def plot(ptype, df_list, plot_vars_map):
         pass
     elif ptype == 'poly_deriv':
         return plot_poly_deriv(x_data_list, y_data_list, plot_vars_map['degree'], plot_vars_map['deriv_degree'], 
-                               plot_vars_map['plots_per_graph'], plot_vars_map['names'])
+                               plot_vars_map['plots_per_graph'], plot_vars_map['names'], plot_vars_map['show_legend'])
     elif ptype == 'scatter_poly':
         return scatter_poly(x_data_list, y_data_list, plot_vars_map['degree'], 
                             plot_vars_map['plots_per_graph'], plot_vars_map['names'],
-                            plot_vars_map['plot_points'])
+                            plot_vars_map['plot_points'], plot_vars_map['show_legend'])
     elif ptype == 'connected':
         return connected_scatter(x_data_list, y_data_list, plot_vars_map['degree'], plot_vars_map['plots_per_graph'], 
-                                 plot_vars_map['names'], plot_vars_map['plot_points'], plot_vars_map['connected_curve'])
+                                 plot_vars_map['names'], plot_vars_map['plot_points'], plot_vars_map['connected_curve'],
+                                 plot_vars_map['show_legend'])
     else:
         print('Invalid plot type!')
 
@@ -142,7 +143,7 @@ def process_data(plot_vars_map, process_type, df_list):
 
     return x_data_list, y_data_list, plot_vars_map
 
-def connected_scatter(x, y, deg, plots_per_graph, names, plot_points, connected_curve):
+def connected_scatter(x, y, deg, plots_per_graph, names, plot_points, connected_curve, show_legend):
     fig, ax1 = plt.subplots()
 
     colors = cm.rainbow(np.linspace(0, 1, len(names)))
@@ -163,11 +164,12 @@ def connected_scatter(x, y, deg, plots_per_graph, names, plot_points, connected_
             ax1.scatter(x, y, s=4, color=color)
 
     ax1.set_title(f'Connected Plot')
-    ax1.legend()
+    if show_legend:
+        ax1.legend()
     cursor = mplcursors.cursor()
     return fig, x, y
 
-def scatter_poly(x, y, deg, plots_per_graph, counties, plot_points):
+def scatter_poly(x, y, deg, plots_per_graph, counties, plot_points, show_legend):
     # Example of what coeffs and fiteq do, for a 3rd degree polynomial
     #d, c, b, a = poly.polyfit(x, y, 3)
     #fiteq = lambda x: a * x ** 3 + b * x ** 2 + c * x + d
@@ -190,7 +192,8 @@ def scatter_poly(x, y, deg, plots_per_graph, counties, plot_points):
             ax1.scatter(x, y, s=4, color=color)
 
     ax1.set_title(f'Polynomial fit deg={deg}')
-    ax1.legend()
+    if show_legend:
+        ax1.legend()
     #plt.subplots_adjust(right=0.8)
     #plt.table([['{:.10f}'.format(coeffs[x])[:9]] for x in range(len(coeffs)-1, -1, -1)], 
     #          rowLabels=[ascii_lowercase[x] for x in range(deg+1)], 
@@ -200,7 +203,7 @@ def scatter_poly(x, y, deg, plots_per_graph, counties, plot_points):
     #plt.show()
     return fig, x, y
 
-def plot_poly_deriv(x, y, deg, deriv_deg, plots_per_graph, counties):
+def plot_poly_deriv(x, y, deg, deriv_deg, plots_per_graph, counties, show_legend):
     
     new_x = []
     new_y = []
@@ -224,11 +227,12 @@ def plot_poly_deriv(x, y, deg, deriv_deg, plots_per_graph, counties):
         #ax1.scatter(x, y, s=4, color=color)
     
     ax1.set_title(f'Derivitive deg={deriv_deg} of polynomial fit deg={deg}')
-    ax1.legend()
+    if show_legend:
+        ax1.legend()
     cursor = mplcursors.cursor()
     return fig, new_x, new_y
 
-def tkinter_scatter_poly(x, y, deg):
+def tkinter_scatter_poly(x, y, deg, show_legend):
     coeffs = poly.polyfit(x, y, deg)
     def fiteq(x, idx=0):
         if idx == deg:
@@ -243,7 +247,8 @@ def tkinter_scatter_poly(x, y, deg):
     lines = ax1.plot(x_fit, y_fit, color='r', alpha=0.5, label='Polynomial fit')
     scatter = ax1.scatter(x, y, s=4, color='b', label='Data points')
     ax1.set_title(f'Polynomial fit example deg={deg}')
-    ax1.legend()
+    if show_legend:
+        ax1.legend()
     plt.subplots_adjust(right=0.8)
     plt.table([['{:.10f}'.format(coeffs[x])[:9]] for x in range(len(coeffs)-1, -1, -1)],
               rowLabels=[ascii_lowercase[x] for x in range(deg+1)],
