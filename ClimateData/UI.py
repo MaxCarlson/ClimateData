@@ -380,7 +380,7 @@ class graphPage(tk.Frame):
 
             image_graph = FigureCanvasTkAgg(fig, master = master)  
             image_graph.draw()
-            image_graph.get_tk_widget().grid(row=0, column=0, pady=(50, 0), padx=(10, 560))
+            image_graph.get_tk_widget().grid(row=0, column=0, pady=(0, 0), padx=(30, 550))
             image_graph.grid_columnconfigure(0,weight=1)
             image_graph.grid_columnconfigure(1,weight=1)
             image_graph.grid_columnconfigure(2,weight=1)
@@ -481,14 +481,14 @@ class graphPage(tk.Frame):
                     self.degree_label.grid_rowconfigure(0,weight=1)
                     self.degree_label.grid_rowconfigure(7,weight=1)
                     self.ent2 = tkboot.Entry(self.tab, width="6")
-                    self.ent2.grid(row=8, column=1, padx=(240,0), pady=(0,80))
+                    self.ent2.grid(row=7, column=1, padx=(570,0), pady=(30,0))
                     self.ent2.grid_columnconfigure(0,weight=1)
                     self.ent2.grid_columnconfigure(1,weight=1)
                     self.ent2.grid_columnconfigure(2,weight=1)
                     self.ent2.grid_rowconfigure(0,weight=1)
                     self.ent2.grid_rowconfigure(8,weight=1)
                     self.deriv_label = tk.Label(self.tab, font="10", text="Derivitive: ")
-                    self.deriv_label.grid(row=8, column=1, padx=(100, 0), pady=(0,80))
+                    self.deriv_label.grid(row=7, column=1, padx=(430, 0), pady=(30,0))
                     self.deriv_label.grid_columnconfigure(1,weight=1)
                     self.deriv_label.grid_columnconfigure(2,weight=1)
                     self.deriv_label.grid_rowconfigure(0,weight=1)
@@ -593,7 +593,7 @@ class graphPage(tk.Frame):
             for row in data:
                 print(row)
                 self.data_table.insert(parent='', index='end', values=row)
-            self.data_table.grid(row=2, column=1, pady=(0,0), padx=(0, 0))
+            self.data_table.grid(row=2, column=1, pady=(0,0), padx=(30, 0))
             self.date_table.grid_columnconfigure(1,weight=1)
             self.date_table.grid_columnconfigure(2,weight=1)
             self.date_table.grid_rowconfigure(0,weight=1)
@@ -629,13 +629,13 @@ class graphPage(tk.Frame):
             nextMonth = "0"+ str(int(latestDate[3:5])-1)
             latestDate = nextMonth + latestDate[5:]
             self.end_date_ent.insert(0, latestDate)
-            self.end_date_ent.grid(row=5, column=1, padx=(40, 0), pady=(0,0))
+            self.end_date_ent.grid(row=4, column=1, padx=(40, 0), pady=(70,0))
 
             self.begin_date_label = tkboot.Label(self.tab, font="10", text="Date range begin: ", bootstyle="inverse-dark")
             self.begin_date_label.grid(row=4, column=1, padx=(0, 250), pady=(0,0))        
 
             self.end_date_label = tkboot.Label(self.tab, font="10", text="Date range end: ", bootstyle="inverse-dark")
-            self.end_date_label.grid(row=5, column=1, padx=(0, 263), pady=(0,0))
+            self.end_date_label.grid(row=4, column=1, padx=(0, 263), pady=(70,0))
 
             self.begin_date_label.grid_columnconfigure(0,weight=1)
             self.begin_date_label.grid_columnconfigure(1,weight=1)
@@ -672,7 +672,7 @@ class graphPage(tk.Frame):
             #Delete selected rows from the table
             delete_btn = tkboot.Button(self.tab, text="Delete row(s)", command=delete_from_table)
             delete_btnTip = Hovertip(delete_btn, 'Delete selected row(s) from table')
-            delete_btn.grid(row=2, column=1, padx=(560,50),pady=(0,50))
+            delete_btn.grid(row=2, column=1, padx=(550,0),pady=(0,0), sticky='w')
             delete_btn.grid_columnconfigure(0,weight=1)
             delete_btn.grid_columnconfigure(1,weight=1)
             delete_btn.grid_columnconfigure(2,weight=1)
@@ -682,7 +682,7 @@ class graphPage(tk.Frame):
             #Delete every row from the table
             delete_all_rows = tkboot.Button(self.tab, text="Delete all", command=delete_all_from_table)
             delete_all_rows_tip = Hovertip(delete_all_rows, 'Delete all rows from table')
-            delete_all_rows.grid(row=2, column=1, padx=(535,0), pady=(0,120))
+            delete_all_rows.grid(row=2, column=1, padx=(550,0), pady=(80,0), sticky='w')
             delete_all_rows.grid_columnconfigure(0,weight=1)
             delete_all_rows.grid_columnconfigure(1,weight=1)
             delete_all_rows.grid_columnconfigure(2,weight=1)
@@ -708,7 +708,7 @@ class graphPage(tk.Frame):
             self.dropdown_state['state'] = 'readonly'
             self.dropdown_state['values'] = (['All States', 'AK','AL','AR','AZ','CA','CO','CT','DE','FL','GA','IA','ID','IL','IN','KS','KY','LA','MA','MD','ME','MI','MN','MO','MS','MT','NC','ND','NE','NH','NJ','NM','NV','NY','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VA','VT','WA','WI','WV','WY'])
             self.dropdown_state.bind('<<ComboboxSelected>>', gen_counties)
-            self.dropdown_state.grid(row=1, column=1, padx=(0, 190), pady=(20,20))
+            self.dropdown_state.grid(row=1, column=1, padx=(10, 190), pady=(20,20))
             self.dropdown_state.grid_columnconfigure(0,weight=1)
             self.dropdown_state.grid_columnconfigure(1,weight=1)
             self.dropdown_state.grid_columnconfigure(2,weight=1)
@@ -722,14 +722,13 @@ class graphPage(tk.Frame):
             self.dropdown_county['values'] = (['No state selected'])
             self.dropdown_county.bind('<<ComboboxSelected>>', gen_table)
             self.dropdown_county.grid(row=1, column=1, padx=(290, 0), pady=(20, 20))
-            self.dropdown_county.grid_columnconfigure(0,weight=1)
             self.dropdown_county.grid_columnconfigure(1,weight=1)
             self.dropdown_county.grid_columnconfigure(2,weight=1)
             self.dropdown_county.grid_rowconfigure(0,weight=1)
-            self.dropdown_county.grid_rowconfigure(3,weight=1)
+            self.dropdown_county.grid_rowconfigure(1,weight=1)
 
             self.button2 = TTK.Button(self.tab, text = "Open map", width="15", bootstyle="secondary", command=lambda: controller.open_map("TODO:"))
-            self.button2.grid(row=0, column=1, padx=(0,250), pady=(0,0))
+            self.button2.grid(row=0, column=1, padx=(0,0), pady=(0,0))
             self.button2.grid_columnconfigure(0,weight=1)
             self.button2.grid_columnconfigure(1,weight=1)
             self.button2.grid_columnconfigure(2,weight=1)
@@ -743,7 +742,7 @@ class graphPage(tk.Frame):
             self.dropdown_equations['values'] = ['Connected', 'Connected-Curve', 'Linear', 
                                                  'Quadratic', 'Cubic', 'n-degree..', 'n-degree derivative']
             self.dropdown_equations.bind('<<ComboboxSelected>>', gen_equation)
-            self.dropdown_equations.grid(row=7, column=1,  padx=(0, 190), pady=(30, 0))
+            self.dropdown_equations.grid(row=7, column=1,  padx=(10, 190), pady=(30, 0))
             self.dropdown_equations.grid_columnconfigure(0,weight=1)
             self.dropdown_equations.grid_columnconfigure(1,weight=1)
             self.dropdown_equations.grid_columnconfigure(2,weight=1)
@@ -757,7 +756,7 @@ class graphPage(tk.Frame):
             self.dropdown_graphs['state'] = 'readonly'
             self.dropdown_graphs['values'] = ["Minimum temperature", "Maximum temperature", "Average temperature", "Precipitation", "Palmer Drought Severity", "Palmer Hydrological Drought", "Modified Palmer Drought Severity", "1-month Standardized Precipitation", "2-month Standardized Precipitation", "3-month Standardized Precipitation", "6-month Standardized Precipitation", "9-month Standardized Precipitation", "12-month Standardized Precipitation", "24-month Standardized Precipitation"]
             self.dropdown_graphs.bind('<<ComboboxSelected>>', gen_datatype_columns)
-            self.dropdown_graphs.grid(row=8, column=1,  padx=(0, 190), pady=(30, 0))
+            self.dropdown_graphs.grid(row=8, column=1,  padx=(10, 190), pady=(30, 0))
             datatypeTip = Hovertip(self.dropdown_graphs, 'Select which type of weather data to graph')
             self.dropdown_graphs.grid_columnconfigure(0,weight=1)
             self.dropdown_graphs.grid_columnconfigure(1,weight=1)
@@ -774,11 +773,8 @@ class graphPage(tk.Frame):
                 text="Graph it!", 
                 bootstyle=DEFAULT
             )
-            self.data_submit.grid(row=9, column=1, padx=(0,185), pady=(50,0))
-            self.data_submit.grid_columnconfigure(0,weight=1)
+            self.data_submit.grid(row=9, column=1, padx=(10,222), pady=(20,0))
             self.data_submit.grid_columnconfigure(1,weight=1)
-            self.data_submit.grid_columnconfigure(2,weight=1)
-            self.data_submit.grid_rowconfigure(0,weight=1)
             self.data_submit.grid_rowconfigure(9,weight=1)
 
             # Generate Table Rows
@@ -794,7 +790,7 @@ class graphPage(tk.Frame):
                 self.export_csv_df.to_csv(file_name, sep=',', encoding='utf-8', index=False)
 
         frame = ttk.Notebook(self)
-        frame.pack(fill='both', pady=10, expand=True)
+        frame.pack(fill='none', pady=0, expand=False)
         frame.grid_columnconfigure(0,weight=1)
         frame.grid_columnconfigure(1,weight=1)
         frame.grid_columnconfigure(2,weight=1)
@@ -807,19 +803,19 @@ class graphPage(tk.Frame):
         # Monthly Split checkbox
         self.monthly_check_var = tk.IntVar()
         self.monthly_check = TTK.Checkbutton(self.tab, text='Split Months', variable=self.monthly_check_var)
-        self.monthly_check.grid(row=4, column=1,  padx=(300, 0), pady=(0, 0))
+        self.monthly_check.grid(row=4, column=1,  padx=(470, 0), pady=(0, 0), sticky='w')
         splitTip = Hovertip(self.monthly_check, 'Plot induvidual equations for each month')
 
         # Scatter Box Split checkbox
         self.plot_points_var = tk.IntVar()
         self.plot_points = TTK.Checkbutton(self.tab, text='Enable Scatter Plotting', variable=self.plot_points_var)
-        self.plot_points.grid(row=5, column=1,  padx=(365, 0), pady=(10, 0))
+        self.plot_points.grid(row=4, column=1,  padx=(470, 0), pady=(30, 0), sticky='w')
         scatterTip = Hovertip(self.plot_points, 'Check to enable scatter plotting on graph')
 
         # Hide Plot Legend checkbox
         self.plot_hide_legend_var = tk.IntVar()
         self.plot_hide_legend = TTK.Checkbutton(self.tab, text='Hide Plot Legend', variable=self.plot_hide_legend_var)
-        self.plot_hide_legend.grid(row=5, column=1,  padx=(330, 0), pady=(60, 0))
+        self.plot_hide_legend.grid(row=4, column=1,  padx=(470, 0), pady=(60, 0), sticky='w')
         hideLegendTip = Hovertip(self.plot_hide_legend, 'Check to disable the legend on the graph')
 
         #Dropdown for plot type  selection
@@ -828,7 +824,7 @@ class graphPage(tk.Frame):
         self.plot_type['state'] = 'readonly'
         self.plot_type['values'] = ['Line', 'Yearly Offset']
         self.plot_type.bind('<<ComboboxSelected>>', gen_plot_type)
-        self.plot_type.grid(row=6, column=1,  padx=(0, 190), pady=(30, 0))
+        self.plot_type.grid(row=6, column=1,  padx=(10, 190), pady=(30, 0))
         datatypeTip = Hovertip(self.plot_type, 'Select plot type')
         self.grid_columnconfigure(0,weight=1)
         self.grid_columnconfigure(1,weight=1)
