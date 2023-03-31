@@ -334,9 +334,9 @@ class MapWindow(QWindow):
     self.mapFig.update_layout(title=dict(text='Climate Data'), margin=dict(l=0,r=0,b=0))
     self.mapFig.update_geos(resolution=50)
     self.mapFig.update_traces(name='Data', selector=dict(type='choropleth'))
-      
-    self.mapFig.write_html('HTML/map_fig.html')
-    self.browser.setUrl(QUrl.fromLocalFile(os.path.abspath('HTML/map_fig.html')))
+
+    self.mapFig.write_html('ClimateData/HTML/map_fig.html')
+    self.browser.setUrl(QUrl.fromLocalFile(os.path.abspath('ClimateData/HTML/map_fig.html')))
     self.genMapFlag = True
 
   def get_selected(self):
@@ -387,7 +387,7 @@ class MapWindow(QWindow):
   #Used to open blank map of US
   def openDefaultMap(self):
       self.genMapFlag = False
-      self.browser.setUrl(QUrl.fromLocalFile(os.path.abspath('HTML/default_fig.html')))
+      self.browser.setUrl(QUrl.fromLocalFile(os.path.abspath('ClimateData/HTML/default_fig.html')))
 
   #Button control to remove a line
   def removeLine(self):
@@ -454,7 +454,7 @@ class MapWindow(QWindow):
     if not self.droughtFlag and self.county_boxes:
       self.build_lists()
     if len(self.state_boxes) == 0:
-      self.browser.setUrl(QUrl.fromLocalFile(os.path.abspath('HTML/default_fig.html')))
+      self.browser.setUrl(QUrl.fromLocalFile(os.path.abspath('ClimateData/HTML/default_fig.html')))
       return
     if not self.county_boxes:
       self.df = database.get_map_data_for_states(self.state_boxes, 'US', [self.dataType], [self.curr_month], self.curr_year, self.curr_year)
@@ -462,8 +462,8 @@ class MapWindow(QWindow):
       self.df = database.get_map_data_for_counties(self.state_boxes, self.county_boxes, 'US', [self.dataType], [self.curr_month], self.curr_year, self.curr_year)
     li = self.df[self.dataType+"_"+self.curr_month].tolist()
     self.mapFig.update_traces(z=li)
-    self.mapFig.write_html('HTML/map_fig.html')
-    self.browser.setUrl(QUrl.fromLocalFile(os.path.abspath('HTML/map_fig.html')))
+    self.mapFig.write_html('ClimateData/HTML/map_fig.html')
+    self.browser.setUrl(QUrl.fromLocalFile(os.path.abspath('ClimateData/HTML/map_fig.html')))
 
   #Displays slider value
   def yearSlideBoxChange(self):

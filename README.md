@@ -80,6 +80,22 @@ The following software is needed in order to use this application.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+<!-- BUILD INSTRUCITONS -->
+## Building from source
+To build an executable, use pyinstaller.
+
+```pip install pyinstaller```
+
+First install all requirements from the requirements.txt file.
+
+```pip install -r .\requirements.txt```
+
+Then run pyinstaller on the .spec file
+
+```pyinstaller .\ClimateData.spec```
+
+This should result in two new folders, dist and build. The dist folder contains the executeable and everything needed to run it.
+
 
 <!-- USAGE EXAMPLES -->
 ## Usage
@@ -94,3 +110,5 @@ TBD.
 TBD.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
+
+

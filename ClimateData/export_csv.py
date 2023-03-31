@@ -6,7 +6,8 @@ import pandas as pd
 from datetime import date
 
 # Predefined lists
-coeff_cols = list(string.ascii_lowercase)
+coeff_cols = list()
+
 months_dict = {'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6, 'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10,
                'nov': 11, 'dec': 12}
 
@@ -527,6 +528,11 @@ def export_csv_year_by_state(df_list, state_list, deg, deriv, yearly_offset_diff
 
 def export_csv(process_type, df_list, state_dict, date_range, data_type, deg, deriv, drought_data, yearly_offset_diff):
     print("Creating export csv df")
+    #build list of coeffs, dylans edit for poly bug
+    for i in reversed(range(0, deg+1)):
+        coeff_cols.append(str("a"+ str(i)))
+    
+
     if drought_data == True:
         if process_type == 'monthly':
             return export_csv_split_months_by_state(df_list, state_dict, date_range, data_type, deg, deriv, yearly_offset_diff)

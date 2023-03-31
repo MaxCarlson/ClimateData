@@ -7,6 +7,7 @@ from ttkbootstrap import ttk as TTK
 from ttkbootstrap import font as tkfont
 from ttkbootstrap.constants import *
 from tkinter.filedialog import asksaveasfilename
+from tkinter.filedialog import askopenfilename, askopenfilenames          #Save State Code: used for import
 import psycopg2
 from database import *
 import plotting
@@ -21,6 +22,11 @@ from export_csv import export_csv
 import numpy as np
 import os
 from datetime import date
+import pickle       #Save State Code: pickle, used for import and export
+
+# lets adjust the maximum size from a convenient spot
+x_max = 4096
+y_max = 2160
 
 # Dictionaries
 degree_dict = {
@@ -119,10 +125,11 @@ def validate_degree(degree):
 
 class App(tk.Tk):
 
+
     #Logic for generating a tab
     def gen_tab(self):
         self.tab_counter += 1
-        tab = tk.Frame(self.container, width=1920, height=1080)
+        tab = tk.Frame(self.container, width=x_max, height=y_max)
         tab.grid_columnconfigure(0, weight=1)
         tab.grid_rowconfigure(0, weight=1)
         self.container.add(tab, text=f'Tab {self.tab_counter}')
@@ -140,7 +147,7 @@ class App(tk.Tk):
             self.frames[self.tab_counter - 1][data[loop]] = current_frame
             current_frame.grid(row=0, column=0)
             loop += 1
-   
+
     #Logic for deleting a tab 
     def destroy_tab(self):
         for F in self.container.winfo_children():
@@ -156,19 +163,21 @@ class App(tk.Tk):
 
         tk.Tk.__init__(self, *args, **kwargs)
         self.title('Climate Data')
-        self.geometry('1920x1080')
+        self.geometry(str(x_max) + 'x' + str(y_max))
+        self.state('zoomed')  # start maximized
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
         tkboot.Style('darkly')
 
         self.app = QApplication([])
         self.title_font = tkfont.Font(family='Helvetica', size=18, weight="bold", slant="italic")
-        self.container = ttk.Notebook(self)
+        self.container = ttk.Notebook(self, width=x_max, height=y_max)  # the "notebook" needs to be assigned to fill the window
 
         self.container.grid(row=0, column=0)
         self.gen_tab()
         self.container.grid_rowconfigure(0, weight=1)
         self.container.grid_columnconfigure(0, weight=1)
+
 
          #Button for generating a notebook tab
         self.new_tab = tkboot.Button(
@@ -178,7 +187,7 @@ class App(tk.Tk):
            text="New tab",
            bootstyle=DEFAULT
         )
-        self.new_tab.grid(row=0, column=0, padx=(0), pady=(0,550))
+        self.new_tab.grid(row=0, column=0, padx=(0,150), pady=(0,0), sticky='ne')  # stick to top right corner
         self.new_tabTip = Hovertip(self.new_tab, 'Create a new notebook tab')
         
         #Delete button for a notebook tab
@@ -189,10 +198,10 @@ class App(tk.Tk):
             text="Delete tab",
             bootstyle=DEFAULT
         )
-        self.delete_tab.grid(row=0, column=0, padx=(250,0), pady=(0,550))
+        self.delete_tab.grid(row=0, column=0, padx=(0, 50), pady=(0,0), sticky='ne')  # stick to top right corner
         self.delete_tabTip = Hovertip(self.delete_tab, 'Delete the current notebook tab')
         
-        
+
        
 
     def show_frame(self, page_name):
@@ -231,6 +240,20 @@ class graphPage(tk.Frame):
         self.export_csv_button = None
         self.button_coeff = None
 
+#Save State Code
+        self.save_state_export_df = None
+        self.save_state_export_button = None
+        self.save_state_import_df = None
+        self.save_state_import_button = None
+        self.graph = None
+
+#3/6: txt and table import
+        self.table_export_df = None
+        self.table_export_button = None
+        self.table_import_df = None
+        self.table_import_button = None
+#End of Save State Code
+
         # Yearly Offset Input Selection
         self.ent3 = None
         self.year_offset = None
@@ -241,6 +264,10 @@ class graphPage(tk.Frame):
         self.ent2 = None
         self.deriv_label = None
 
+        # Y-axis limit inputs
+        self.y_lim = None
+        self.y_min = None
+        """""
         def on_submit():
             #user input is invalid, call validate_dates function
             if validate_dates(self.begin_year.get(), self.end_year.get()) == False:    
@@ -264,6 +291,8 @@ class graphPage(tk.Frame):
             else:
                 print("Degree is: ")
                 print(self.ent.get())
+
+        """
 
         #The data has been entered/ selected by the user. Here is it:
         def on_enter_data():
@@ -289,6 +318,10 @@ class graphPage(tk.Frame):
             plot_points     = self.plot_points_var.get()
             hide_legend     = self.plot_hide_legend_var.get()
             monthly_split   = self.monthly_check_var.get()
+            y_max           = self.entry_ymax.get()
+            y_min           = self.entry_ymin.get()
+            plot_dropdown   = self.plot_type.get()
+            graph_type      = self.dropdown_graphs.get()
 
             connected_curve = None
             derivitive_degree = None
@@ -355,18 +388,46 @@ class graphPage(tk.Frame):
                     return states_list
 
             counties = list(chain(*counties))
+
+            print('Testing dataframe:')
+            print(temp_dict)
+
             fig, x_data, y_data = plotting.plot(plot_type, df_list, {'process_type': process_type, 'double_plot_diff': double_plot_diff,
                                                      'plot_points': plot_points, 'connected_curve': connected_curve,
                                                      'begin_month': monthsIdx[begin_month], 'end_month': monthsIdx[end_month],
                                                      'degree': polynomial_degree, 'deriv_degree': derivitive_degree,
                                                      'plots_per_graph' : len(df_list), 'names' : (remove_alaska(states) if data_type in state_data_types else counties),
-                                                     'show_legend': not hide_legend})
+                                                     'show_legend': not hide_legend, 'y_max': y_max, 'y_min': y_min})
 
+#Save State Code: capture the data needed to be saved into the df on enter data. Instead of saving plot_vars_map, save what is needed to build plot_vars_map
+            self.save_state_export_df = pd.DataFrame([{'plot_type':plot_type, 'df_list':df_list, 'process_type': process_type, 'double_plot_diff': double_plot_diff,
+                                                     'plot_points': plot_points, 'connected_curve': connected_curve,
+                                                     'begin_month': monthsIdx[begin_month], 'end_month': monthsIdx[end_month],
+                                                     'degree': polynomial_degree, 'deriv_degree': derivitive_degree,
+                                                     'plots_per_graph' : len(df_list), 'names' : (remove_alaska(states) if data_type in state_data_types else counties),
+                                                     'show_legend': not hide_legend, 'y_max': y_max, 'y_min': y_min, 'table_list': temp_dict,
+                                                      'equation': drop_down, 'monthly_split': monthly_split, 'plot_dropdown': plot_dropdown, 'graph_type': graph_type}],
+                                                     columns = ('plot_type', 'df_list',
+                                                     'process_type', 'double_plot_diff', 'plot_points', 
+                                                     'connected_curve', 'begin_month', 'end_month',
+                                                     'degree', 'deriv_degree', 'plots_per_graph', 'names',
+                                                     'show_legend', 'y_max', 'y_min', 'table_list' , 'equation',
+                                                      'monthly_split', 'plot_dropdown','graph_type'))
+            
+            print(f'printing tempg_dict: {temp_dict}')
+            state_county_list = []
+            for state, counties in temp_dict.items():
+                for county in counties:
+                    state_county_list.append({"state": state, "county": county})
+            print(f'This is the df for state and county {state_county_list}')
+            self.table_export_df = pd.DataFrame(state_county_list)
 
-            image_graph = FigureCanvasTkAgg(fig, master = master)  
+#End of Save State Code
+
+            image_graph = FigureCanvasTkAgg(fig, master=self.tab)  # try and attach to the right element here
             image_graph.draw()
-            image_graph.get_tk_widget().grid(row=0, column=0, pady=(50, 0), padx=(10, 600))
-
+            image_graph.get_tk_widget().grid(row=2, column=0, sticky="nwes", rowspan=8, padx=(20,20), pady=(20,20))
+            
             # Coefficient Button
             if drop_down == 'Connected':
                 if self.button_coeff is not None:
@@ -387,21 +448,43 @@ class graphPage(tk.Frame):
                                                                             double_plot_diff <= 0 else double_plot_diff))
 
                 # Export CSV Button
-                self.export_csv_button = TTK.Button(self.tab, command=save_csv_file ,width="16", text="Export data to CSV", bootstyle="blue")
-                self.export_csv_button.grid(row=9, column=1, padx=(250,0), pady=(50, 0))
+                self.graph = image_graph
+                self.export_csv_button = TTK.Button(self.tab, command=save_csv_file, width="19", text="Export data to CSV", bootstyle="blue")
+                self.export_csv_button.grid(row=9, column=1, padx=(250,0), pady=(0, 0))
 
-        def gen_plot_type(event=None):
-            if event.widget.get() == 'Yearly Offset':
-                self.ent3 = tkboot.Entry(self.tab, width="6", textvariable=event.widget.get())
-                self.ent3.grid(row=6, column=1, padx=(240,0), pady=(30,0))
+        # If Yearly offset is selected, imput box for Yearly Diff appears
+        def yearly_offset(plot_type):
+            if plot_type == "Yearly Offset":     
+                self.ent3 = tkboot.Entry(self.tab, width="6", textvariable=plot_type)
+                self.ent3.grid(row=3, column=1, padx=(260,0), pady=(0,0))
                 self.year_offset = tk.Label(self.tab, font="10", text="Year Diff: ")
-                self.year_offset.grid(row=6, column=1, padx=(100, 0), pady=(30,0))
+                self.year_offset.grid(row=3, column=1, padx=(120, 0), pady=(0,0))
             else:
                 if self.ent3 is not None:
                     self.ent3.destroy()
                     self.ent3 = None
                     self.year_offset.destroy()
                     self.year_offset = None
+   
+
+        def gen_plot_type(event=None):
+            plot_type = event.widget.get()
+            yearly_offset(plot_type)
+            """
+            if event.widget.get() == 'Yearly Offset':
+                self.ent3 = tkboot.Entry(self.tab, width="6", textvariable=event.widget.get())
+                self.ent3.grid(row=3, column=1, padx=(240,0), pady=(30,0))
+                self.year_offset = tk.Label(self.tab, font="10", text="Year Diff: ")
+                self.year_offset.grid(row=3, column=1, padx=(100, 0), pady=(30,0))
+            else:
+                if self.ent3 is not None:
+                    self.ent3.destroy()
+                    self.ent3 = None
+                    self.year_offset.destroy()
+                    self.year_offset = None
+
+                    """
+                    
 
         def gen_equation(event=None):
             # Remove all degree / deriv boxes on click and repopulate if necessary
@@ -450,7 +533,7 @@ class graphPage(tk.Frame):
             columns = event.widget.get()
             #Data type 'columns' for database function 'get_data_for_counties_dataset'
             print("Data type in correct format is: " + datatype_dict[columns])
-
+            
         def delete_from_table():
             for row in self.data_table.selection():
                 self.data_table.delete(row)
@@ -503,7 +586,9 @@ class graphPage(tk.Frame):
             else:
                 county_name = event.widget.get()
                 state = self.dropdown_state.get()
-            if county_name in [ self.data_table.item(x)['values'][1] for x in self.data_table.get_children()]:
+            if (county_name, state) in [(self.data_table.item(x)['values'][1],
+                                         self.data_table.item(x)['values'][0])
+                                        for x in self.data_table.get_children()]:
                 return
             if state == 'All States':
                 data = get_all_counties_all_data()
@@ -521,10 +606,28 @@ class graphPage(tk.Frame):
 
 
         def widgets(frame):
-            self.tab = tk.Frame(frame, width=1920, height=1080)
-            self.tab.grid_columnconfigure(0, weight=1)
-            self.tab.grid_rowconfigure(0, weight=1)
-            
+            self.tab = tk.Frame(frame, width=x_max, height=y_max)
+            self.tab.grid_columnconfigure(0, weight=1, uniform="main_columns")  # need to set a uniform group to force equal width
+            self.tab.grid_rowconfigure(0, weight=0)  # smush this one! might need it later tho
+
+            self.tab.grid_columnconfigure(1, weight=1, uniform="main_columns") # set the second column, now they will be equal width
+
+            # and set all the rows (there's eight!)
+            self.tab.grid_rowconfigure(1, weight=1)
+            self.tab.grid_rowconfigure(2, weight=1)
+            self.tab.grid_rowconfigure(3, weight=1)
+            self.tab.grid_rowconfigure(4, weight=1)
+            self.tab.grid_rowconfigure(5, weight=1)
+            self.tab.grid_rowconfigure(6, weight=1)
+            self.tab.grid_rowconfigure(7, weight=1)
+            self.tab.grid_rowconfigure(8, weight=1)
+            self.tab.grid_rowconfigure(9, weight=1)
+
+            # show where the graph will be even when it hasn't been generated yet
+            self.empty_grid = tkboot.Label(self.tab, background="#181818")
+            self.empty_grid.grid(row=2, column=0, sticky="nwes", rowspan=8, padx=(20,20), pady=(20,20))
+
+
             #Notebook   
             self.notebook_label = tk.Label(self.tab, font="12")
             self.notebook_label.grid(row=1, column=0, padx=(10, 500), pady=10)
@@ -536,17 +639,40 @@ class graphPage(tk.Frame):
             self.end_date_ent = tkboot.Entry(self.tab, textvariable=self.end_year, width=10)
              #get_latest_date
             today = date.today()
+            # Handles January case to shift back one year
+            if(today.month == 1):
+                endMonth = 12
+                today = today.replace(year = int(today.year) -1)
+            else:
+                endMonth = today.month - 1
+            nextMonth = str(int(endMonth))
+            if(endMonth < 10):
+                nextMonth = "0" + nextMonth
             latestDate = today.strftime("%d/%m/%Y")
-            nextMonth = "0"+ str(int(latestDate[3:5])-1)
             latestDate = nextMonth + latestDate[5:]
             self.end_date_ent.insert(0, latestDate)
             self.end_date_ent.grid(row=2, column=1, padx=(0, 0), pady=(200,30))
 
             self.begin_date_label = tkboot.Label(self.tab, font="10", text="Date range begin: ", bootstyle="inverse-dark")
-            self.begin_date_label.grid(row=2, column=1, padx=(0, 250), pady=(150,30))        
+            self.begin_date_label.grid(row=2, column=1, padx=(0, 250), pady=(150,30))
 
             self.end_date_label = tkboot.Label(self.tab, font="10", text="Date range end: ", bootstyle="inverse-dark")
             self.end_date_label.grid(row=2, column=1, padx=(0, 260), pady=(200,30))
+
+            #Entry box for y-axis limits 
+            self.entry_ymax = TTK.Entry(self.tab, font="Helvetica 12", width=4)
+            self.entry_ymax.bind('<<ComboboxSelected>>', gen_equation)
+            self.entry_ymax.grid(row=1, column=0, padx=(100,0), pady=(0,10))
+            self.label_ymax = TTK.Label(self.tab, font="Helvetica 12", text="ymax", width=4)
+            self.label_ymax.grid(row=1, column=0, padx=(0, 0), pady=(0, 10))
+            
+            self.entry_ymin = TTK.Entry(self.tab, font="Helvetica 12", width=4)
+            self.entry_ymin.bind('<<ComboboxSelected>>', gen_equation)
+            self.entry_ymin.grid(row=1, column=0, padx=(100,220), pady=(0,10))
+            self.label_ymin = TTK.Label(self.tab, font="Helvetica 12", text="ymin", width=4)
+            self.label_ymin.grid(row=1, column=0, padx=(0, 220), pady=(0, 10))
+
+   
 
             # Initialize Table Widget
             self.data_table = TTK.Treeview(self.tab, height=7)
@@ -626,35 +752,296 @@ class graphPage(tk.Frame):
             self.dropdown_graphs.bind('<<ComboboxSelected>>', gen_datatype_columns)
             self.dropdown_graphs.grid(row=5, column=1,  padx=(0, 190),pady=(0,10))
             datatypeTip = Hovertip(self.dropdown_graphs, 'Select which type of weather data to graph')
-            
 
             #Button for submitting all that the user has entered
             self.data_submit = tkboot.Button(
-                self.tab, 
+                self.tab,
                 command=on_enter_data,
-                width="25", 
-                text="Graph it!", 
+                width="25",
+                text="Graph it!",
                 bootstyle=DEFAULT
             )
-            self.data_submit.grid(row=9, column=1, padx=(0,185), pady=(50,0))
-    
+            self.data_submit.grid(row=9, column=1, padx=(0,185), pady=(0,0))
+
+#Save State Code
+            # Export Button
+            self.save_state_export_button = TTK.Button(self.tab, command=save_state_export ,width="25", text="Save State Export", bootstyle=DEFAULT)
+            self.save_state_export_button.grid(row=8, column=1, padx=(250,0), pady=(0, 0))
+
+            # Import Button
+            self.save_state_import_button = tkboot.Button(self.tab, command=save_state_import, width="25", text="Save State Import", bootstyle=DEFAULT)
+            self.save_state_import_button.grid(row=8, column=1, padx=(0,185), pady=(0,0))
+
+            #3/6: Buttons
+            # Table Export Button
+            self.table_export_button = TTK.Button(self.tab, command=table_export ,width="25", text="Table Export (txt)", bootstyle=DEFAULT)
+            self.table_export_button.grid(row=7, column=1, padx=(250,0), pady=(0, 0))
+
+            # Table Import Button
+            self.table_import_button = tkboot.Button(self.tab, command=table_import, width="25", text="Table Import (txt)", bootstyle=DEFAULT)
+            self.table_import_button.grid(row=7, column=1, padx=(0,185), pady=(0,0))
+#End of Save State Code
+   
             # Generate Table Rows
             gen_table()
             return self.tab
 
+#Save State Code
+        # Code the Save State Export Button triggers
+        def save_state_export():
+            if self.save_state_export_df is not None:
+                file_name = asksaveasfilename()
+                # Its important to use binary mode
+                dbfile = open(file_name, 'ab')
+                # source, destination
+                pickle.dump(self.save_state_export_df, dbfile)                    
+                dbfile.close()
+
+        # Code the Save State Import Button triggers
+        def save_state_import():
+            file_name = askopenfilename()
+            dbfile = open(file_name, 'rb')
+            self.save_state_import_df = pickle.load(dbfile)
+           
+            plot_type = self.save_state_import_df.loc[0]['plot_type']
+            df_list = self.save_state_import_df.loc[0]['df_list']
+
+            # Grab the list of state and counties to restore table
+            rows = self.save_state_import_df.loc[0]['table_list']
+
+            # Grab all UI elements to restore
+            equation        = self.save_state_import_df.loc[0]['equation']
+            plot_points     = self.save_state_import_df.loc[0]['plot_points']
+            show_legend     = self.save_state_import_df.loc[0]['show_legend'] 
+            monthly_split   = self.save_state_import_df.loc[0]['monthly_split']
+            plot_dropdown   = self.save_state_import_df.loc[0]['plot_dropdown']
+            graph_type      = self.save_state_import_df.loc[0]['graph_type']
+
+            plot_vars_map = {'process_type': self.save_state_import_df.loc[0]['process_type'],
+                             'double_plot_diff': self.save_state_import_df.loc[0]['double_plot_diff'],
+                             'plot_points': self.save_state_import_df.loc[0]['plot_points'],
+                             'connected_curve': self.save_state_import_df.loc[0]['connected_curve'],
+                             'begin_month': self.save_state_import_df.loc[0]['begin_month'],
+                             'end_month': self.save_state_import_df.loc[0]['end_month'],
+                             'degree': self.save_state_import_df.loc[0]['degree'],
+                             'deriv_degree': self.save_state_import_df.loc[0]['deriv_degree'],
+                             'plots_per_graph' : self.save_state_import_df.loc[0]['plots_per_graph'],
+                             'names' : self.save_state_import_df.loc[0]['names'],
+                             'show_legend': self.save_state_import_df.loc[0]['show_legend'],
+                             'y_max': self.save_state_import_df.loc[0]['y_max'],
+                             'y_min': self.save_state_import_df.loc[0]['y_min']}
+           
+            # TODO: Date range beging, date range end, ymin, ymax, 
+            # TODO: Restore Yearly Diff, Derivitive, Degree boxes when dropdown choices are selected
+
+
+            print('Testing vars: ')
+            print("Equation: " + equation)
+            print("Plot_type: " + plot_type)
+            print("Plot_dropdown:" + plot_dropdown)
+            #print("Plot_point " + plot_points) 
+            # print("Show legend:" + show_legend)
+            # print("Monthly split " + monthly_split)
+            
+            # Restore the checkbuttons state
+            if(plot_points):
+                self.plot_points.state(['selected'])
+            if(monthly_split):
+                self.monthly_check.state(['selected'])
+            if(show_legend == 0):
+                self.plot_hide_legend.state(['selected'])
+
+            # Restore the state of dropdowns: equations, plot type, graphs
+            self.dropdown_equations.set(equation)
+            self.plot_type.set(plot_dropdown)
+            self.dropdown_graphs.set(graph_type)
+
+            # Check if the equation is special case: "n-degree", "n-degree derivative", or "connected curve"
+            check_eq(equation)
+            yearly_offset(plot_dropdown)
+            
+            # Import cases for state and county table
+            # Case 1: All states and counties
+            # Case 2: Specific state and all counties
+            # Case 3: List of states and list of counties
+            # Restoring all the table data
+            for state, county in rows.items():
+                print(f'The county of {state} is ') 
+                for line in county:
+                    print(line)
+                    line = get_selected_counties_for_state(state, line)
+                    for row in line:
+                        self.data_table.insert(parent='', index='end', values=row)
+                    self.data_table.grid(row=2, column=1, pady=(0,83), padx=(250, 235))
+
+
+                        
+            dbfile.close()
+
+            #Proof of Concept Style Style, can't graph b/c of df_list
+            fig, x_data, y_data = plotting.plot(plot_type, df_list, plot_vars_map)
+            image_graph = FigureCanvasTkAgg(fig, master=self.tab)  # try and attach to the right element here
+            image_graph.draw()
+            image_graph.get_tk_widget().grid(row=2, column=0, sticky="nwes", rowspan=8, padx=(20,20), pady=(20,20))
+
+        # Checks Check if the equation is either, "n-degree", "n-degree derivative", or "connected curve"
+        # If any apply then additional degree/derivative entry box needs to be restored
+        def check_eq(equation):
+
+            if equation == "n-degree..":  
+                self.ent = tkboot.Entry(self.tab, width = "6", textvariable = equation)
+                self.ent.grid(row = 4, column = 1, padx = (230, 0), pady = (10,0))
+                self.degree_label = tk.Label(self.tab, font="10", text="Degree: ")
+                self.degree_label.grid(row = 4, column = 1, padx = (100, 0), pady = (10,0))
+            elif equation == 'n-degree derivative':
+                self.ent = tkboot.Entry(self.tab, width="6", textvariable=equation)
+                self.ent.grid(row=4, column=1, padx=(230, 0), pady=(10,0))
+                self.degree_label = tk.Label(self.tab, font="10", text="Degree: ")
+                self.degree_label.grid(row=4, column=1, padx=(100, 0), pady=(10,0))
+                self.ent2 = tkboot.Entry(self.tab, width="6")
+                self.ent2.grid(row=5, column=1, padx=(260, 0), pady=(10,0))
+                self.deriv_label = tk.Label(self.tab, font="10", text="Derivitive: ")
+                self.deriv_label.grid(row=5, column=1, padx=(110, 0), pady=(10,0))
+            elif equation == "Connected-Curve":
+                self.ent = tkboot.Entry(self.tab, width="6", textvariable=equation)
+                self.ent.grid(row=4, column=1, padx=(230, 0), pady=(10,0))
+                self.degree_label = tk.Label(self.tab, font="10", text="Degree: ")
+                self.degree_label.grid(row=4, column=1, padx=(100, 0), pady=(10,0))
+
+        #3/6:
+        # Code the Table Export Button triggers
+        def table_export():
+            if self.table_export_df is not None:
+                file_name = asksaveasfilename(filetypes=[("text file", "*.txt")],
+                                        defaultextension='.txt')
+                print(f'THis is the filename: {file_name}')
+                self.table_export_df.to_csv(file_name, sep=',', index=False, header=['state', 'counties'])
+            else:
+                print("table export stub")
+
+        # Code the Table Export Button triggers
+        def table_import():
+            # allow user to open multiple files
+            file_names = askopenfilenames()
+            # loop through each file to make one big panda
+            self.table_import_df = pd.concat((pd.read_csv(f, sep=',') for f in file_names),
+                                             ignore_index=True)
+
+            if self.table_import_df is not None:
+                for index in range(len(self.table_import_df.index)):
+                    state = self.table_import_df['state'][index]
+                    county = self.table_import_df['counties'][index]
+
+                    # Grab the row of data for the table
+                    row = get_selected_counties_for_state(state, county)
+                    # Insert the row back into state county table
+                    for val in row:
+                        # copied (and improved) logic to prevent duplicate insertions
+                        if (county, state) in [(self.data_table.item(x)['values'][1],
+                                                self.data_table.item(x)['values'][0])
+                                               for x in self.data_table.get_children()]:
+                            continue
+                        self.data_table.insert(parent='', index='end', values=val)
+                    
+#End of Save State Code
                 
         # Exporting data to csv
+
+        #function for calculating standard error
+        def get_standard_error(x_inputs, y_inputs):
+            #build polyfit input values for calc
+            y_mean = np.mean(y_inputs)
+            x_mean = np.mean(x_inputs)
+            n = len(y_inputs)
+            x_sum = 0
+            y_sum = 0
+            x_y_sum = 0     
+
+            for x in x_inputs:
+                x_sum += (x-x_mean)**2
+
+            for y in y_inputs:
+                y_sum += (y-y_mean)**2      
+
+            for x,y in zip(x_inputs,y_inputs):
+                x_y_sum += (x - x_mean) * (y - y_mean)
+
+            #use polyfit list to calc standard error  
+            stndrd_err = np.sqrt((1/(n-2)) * (y_sum - ((x_y_sum**2)/x_sum)))        
+
+            return stndrd_err 
+
         def save_csv_file():
             if self.export_csv_df is not None:
                 file_name = asksaveasfilename(filetypes=[("CSV files", "*.csv")],
                                               defaultextension='.csv')
-                self.export_csv_df.to_csv(file_name, sep=',', encoding='utf-8', index=False)
+                orig_file_name = file_name[0:-4] + ".original" + file_name[-4:]
+                self.export_csv_df.to_csv(orig_file_name, sep=',', encoding='utf-8', index=False)
 
-        frame = ttk.Notebook(self)
+                polynomial_degree = degree_dict[self.dropdown_equations.get()] if self.ent == None else int(self.ent.get())
+                print(polynomial_degree)
+                print(self.export_csv_df)
+                exportdf = self.export_csv_df
+                #grab the name of the type of data, located in the last column
+                dataName = self.export_csv_df.columns[-1]
+                steyxList = [''] * len(self.export_csv_df)
+                steyx11List = [''] * len(self.export_csv_df)
+                smoothedData = [''] * len(self.export_csv_df)
+                #grab the indecies of the counties
+                indecies = np.where(self.export_csv_df['County'] != '')[0].tolist()
+                #add on the end of the list to indecies to facilitate end on last loop
+                indecies.append(len(self.export_csv_df))
+                #this grabs a row based on numeric index
+                #print(self.export_csv_df.iloc[indecies[0]])
+
+                for i in range(1,len(indecies)):
+                    #define the slice of data were looking at
+                    start = indecies[i-1]
+                    end = indecies[i]
+
+                    #these years should be the same in each loop, but keeping this here just in case
+                    years = self.export_csv_df.Year.values[start:end].astype(int)
+                    #OKAY SO HERE'S THE DEAL, this fucntion was originally created with the assumption that the columns of the dataframe were in the following order:
+                    #State, County, Year, N number coefficients where N is the degree of the line, and ONE column of data, as the split months function can't export csv.
+                    #AT SOME POINT between February 28th 2023, and March 4th 2023, this behavior changed without me pulling any changes, and started including an EXTRA column of data AND I DON'T KNOW WHY
+                    #This data is labeled as February, which would be a great start for the split months data export, but this occors when not splitting months.
+                    #In any case, this fix *SHOULD* grab the correct coeffs assuming the first 3 columns and the polynomial_degree get don't start changing too
+                    coeffs = self.export_csv_df.iloc[start].to_numpy()[3:3+polynomial_degree+1]
+                    coeffs = coeffs.astype(float)
+                    yearcount = 0
+                    for j in range(start,end):
+                        smoothedData[j] = np.polyval(coeffs,int(years[yearcount]))
+                        yearcount+=1
+                    steyxList[start] = get_standard_error(years,smoothedData[start:end])
+                    yearcount = 5
+                    for k in range(start+5,end-5):
+                        steyx11List[k] = get_standard_error(years[yearcount-5:yearcount+6],smoothedData[k-5:k+6])
+                        yearcount += 1
+
+
+                exportdf['Smoothed Data'] = smoothedData
+                exportdf['STEYX'] = steyxList
+                exportdf['STEYX 11'] = steyx11List
+
+                exportdf.to_csv(file_name, sep=',', encoding='utf-8', index=False)
+                
+                # Export Graph to PNG format
+                if self.graph is None:
+                    print('There is no graph to export')
+                else:
+                    file_name = file_name[:-4]
+                    graph_file = file_name + '.png'
+                    fig = self.graph.figure
+                    fig.savefig(graph_file)
+
+
+
+
+        frame = ttk.Notebook(self, width=x_max, height=y_max)  # again its the notebook that needs to fill
         frame.pack(fill='both', pady=10, expand=True)
         tabs = ["Notebook1", "Notebook2", "Notebook3", "Notebook4"]
         tab1 = widgets(frame)
-        frame.add(tab1, text = "Main") 
+        frame.add(tab1, text = "Main")
 
         # Monthly Split checkbox
         self.monthly_check_var = tk.IntVar()
